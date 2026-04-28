@@ -4,5 +4,6 @@ module it.turin.hermesclient {
 
 
     opens it.turin.hermesclient to javafx.fxml;
+    opens it.turin.hermesclient.controller to javafx.fxml;
     exports it.turin.hermesclient;
 }
