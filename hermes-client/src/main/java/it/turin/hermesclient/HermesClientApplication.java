@@ -1,6 +1,7 @@
 package it.turin.hermesclient;
 
 import it.turin.hermesclient.controller.LoginController;
+import it.turin.hermesclient.model.LoginModel;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -14,6 +15,7 @@ public class HermesClientApplication extends Application {
         FXMLLoader fxmlLoader = new FXMLLoader(HermesClientApplication.class.getResource("login-view.fxml"));
         Scene scene = new Scene(fxmlLoader.load());
         LoginController controller = fxmlLoader.getController();
+        controller.init(new LoginModel());
         stage.setTitle("Hello!");
         stage.setScene(scene);
         stage.show();
