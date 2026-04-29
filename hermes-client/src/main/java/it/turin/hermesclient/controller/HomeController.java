@@ -1,10 +1,12 @@
 package it.turin.hermesclient.controller;
 
 import it.turin.hermesclient.model.ClientModel;
+import it.turin.hermesclient.model.HomeModel;
 import it.turin.hermesclient.tasks.ScheduledTasksExecutor;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.shape.Circle;
@@ -12,6 +14,10 @@ import javafx.scene.shape.Circle;
 public class HomeController {
     public BorderPane homeView;
     private ClientModel clientModel;
+    private HomeModel homeModel;
+
+    @FXML
+    public ListView<String> emailList;
 
     @FXML
     public Button newEmailButton;
@@ -28,10 +34,12 @@ public class HomeController {
 
     public void init(ClientModel clientModel) {
         this.clientModel = clientModel;
+        this.homeModel = new HomeModel();
         loggedUser.textProperty().bind(clientModel.emailProperty());
-        serverStatus.fillProperty().bind(clientModel.serverOnProperty());
+        serverStatus.fillProperty().bind(homeModel.serverOnProperty());
         homeView.visibleProperty().bind(clientModel.userLoggedInProperty());
-        ScheduledTasksExecutor scheduledTasksExecutor = new ScheduledTasksExecutor(clientModel, 8080);
+        emailList.setItems(homeModel.getEmails());
+        ScheduledTasksExecutor scheduledTasksExecutor = new ScheduledTasksExecutor(homeModel, 8080);
         new Thread(() -> {
             scheduledTasksExecutor.start();
         }).start();
