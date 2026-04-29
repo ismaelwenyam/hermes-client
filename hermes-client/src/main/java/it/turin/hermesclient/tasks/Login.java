@@ -5,49 +5,43 @@ import com.google.gson.JsonIOException;
 import it.turin.hermesclient.dto.Endpoint;
 import it.turin.hermesclient.dto.Request;
 import it.turin.hermesclient.dto.Response;
-import it.turin.hermesclient.model.LoginModel;
+import it.turin.hermesclient.model.ClientModel;
+import javafx.application.Platform;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.PrintStream;
+import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
-import java.util.concurrent.Callable;
 
-public class LoginTask implements Callable<Response> {
-    private final InetAddress inetAddress;
+public class Login implements Runnable {
+    private final ClientModel clientModel;
     private final int port;
-    private final LoginModel loginModel;
 
-    public LoginTask (InetAddress address, int port, LoginModel loginModel) {
-        this.inetAddress = address;
+    public Login(ClientModel clientModel, int port) {
+        this.clientModel = clientModel;
         this.port = port;
-        this.loginModel = loginModel;
     }
 
     @Override
-    public Response call() {
+    public void run () {
         System.out.println("start login task");
         Socket socket = null;
-        PrintStream out = null;
+        PrintWriter out = null;
         Scanner in = null;
         Response response = null;
         try {
-            socket = new Socket(inetAddress, port);
-            out = new PrintStream(socket.getOutputStream(), true);
+            socket = new Socket(InetAddress.getLocalHost(), port);
+            out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream())), true);
             Map<String, Object> requestParams = new HashMap<>();
-            requestParams.put("account", loginModel.getEmail());
+            requestParams.put("account", clientModel.getEmail());
             Request request = new Request(Endpoint.GET_USER, requestParams, null);
             Gson gson = new Gson();
             String jsonRequest = gson.toJson(request);
             System.out.println("sending login request...");
             out.println(jsonRequest);
             System.out.println("sent login request");
-            out.flush();
             in = new Scanner(socket.getInputStream());
             String line = "";
             System.out.println("waiting server response...");
@@ -56,7 +50,17 @@ public class LoginTask implements Callable<Response> {
             }
             response = gson.fromJson(line, Response.class);
             System.out.println("received response: " + response);
-            return response;
+            if (response.getStatusCode() == 200) {
+                Platform.runLater(() -> {
+                    clientModel.setUserNotLoggedIn(false);
+                    clientModel.setUserLoggedIn(true);
+                });
+            } else {
+                Platform.runLater(() -> {
+                    clientModel.setShowError(true);
+                    clientModel.setErrorMessage("invalid mail");
+                });
+            }
         } catch (IOException e) {
             System.err.println("exception in socket connection: " + e.getMessage());
         } catch (JsonIOException e) {
@@ -70,6 +74,6 @@ public class LoginTask implements Callable<Response> {
                 System.err.println("exception in closing resources: " + e.getMessage());
             }
         }
-        return null;
+        System.out.println("end login task");
     }
 }

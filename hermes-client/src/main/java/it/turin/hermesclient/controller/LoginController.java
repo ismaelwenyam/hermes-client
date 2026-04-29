@@ -1,66 +1,73 @@
 package it.turin.hermesclient.controller;
 
-import it.turin.hermesclient.dto.Response;
-import it.turin.hermesclient.model.LoginModel;
-import it.turin.hermesclient.tasks.LoginTask;
+import it.turin.hermesclient.model.ClientModel;
+import it.turin.hermesclient.tasks.Login;
 import it.turin.hermesclient.utils.EmailValidator;
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
-
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.FutureTask;
+import javafx.scene.layout.VBox;
 
 public class LoginController {
-    private LoginModel loginModel;
+    private ClientModel clientModel;
 
+    @FXML
+    public VBox loginView;
     @FXML
     public ProgressBar progessBar;
     @FXML
     public TextField emailField;
     @FXML
     public Label errorLabel;
+    @FXML
+    public Button loginButton;
 
     public boolean emailValid = false;
 
-    public void init (LoginModel loginModel) {
-        this.loginModel = loginModel;
-        loginModel.emailProperty().bind(emailField.textProperty());
+    public void init (ClientModel clientModel) {
+        this.clientModel = clientModel;
+        clientModel.emailProperty().bind(emailField.textProperty());
+        loginView.visibleProperty().bind(clientModel.userNotLoggedInProperty());
+        errorLabel.visibleProperty().bind(clientModel.showErrorProperty());
+        errorLabel.textProperty().bind(clientModel.errorMessageProperty());
     }
 
-    public void login(MouseEvent mouseEvent) {
-        if (!EmailValidator.isValid(emailField.getText().trim()))
-            showErrorLabel("Email not valid");
+    public void onLoginButton(MouseEvent mouseEvent) {
+        loginButton.setVisible(false);
+        if (!EmailValidator.isValid(emailField.getText().trim())) {
+            clientModel.setErrorMessage("Email not valid");
+            clientModel.setShowError(true);
+            loginButton.setVisible(true);
+        }
         else
             logUser();
     }
 
     private void logUser() {
-        try {
-            FutureTask<Response> futureResponse = new FutureTask<Response>(new LoginTask(InetAddress.getLocalHost(), 8080, loginModel));
-            Thread t = new Thread(futureResponse);
-            t.start();
-            progessBar.setVisible(true);
-            Response response = futureResponse.get();
-            System.out.println("response: " + response);
-        } catch (UnknownHostException e) {
-            System.err.println("exception in get local host: " + e.getMessage());
-        } catch (ExecutionException | InterruptedException e) {
-            System.err.println("exeception caught in execution tuture task: " + e.getMessage());
-        }
-    }
-
-
-    private void showErrorLabel(String error) {
-        errorLabel.setText(error);
-        errorLabel.setVisible(true);
+        Thread t = new Thread(new Login(clientModel, 8080), "login-thread");
+        t.start();
     }
 
     public void hideErrorLabel(MouseEvent mouseEvent) {
-        errorLabel.setVisible(false);
+        loginButton.setVisible(true);
+        clientModel.setShowError(false);
     }
+
+    /*
+    public void onEnterPressed(KeyEvent keyEvent) {
+        if (keyEvent.getCode().equals(KeyCode.ENTER)){
+            loginButton.setVisible(false);
+            if (!EmailValidator.isValid(emailField.getText().trim())) {
+                clientModel.setErrorMessage("Email not valid");
+                clientModel.setShowError(true);
+                loginButton.setVisible(true);
+            }
+            else
+                logUser();
+        }
+    }
+    */
 }
