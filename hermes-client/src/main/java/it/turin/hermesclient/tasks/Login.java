@@ -45,10 +45,22 @@ public class Login implements Runnable {
             in = new Scanner(socket.getInputStream());
             String line = "";
             System.out.println("waiting server response...");
-            while (in.hasNextLine()) {
-                line = in.nextLine();
+            line = in.nextLine();
+            if (line == null) {
+                Platform.runLater(() -> {
+                    clientModel.setShowError(true);
+                    clientModel.setErrorMessage("internal server error");
+                });
+                return;
             }
             response = gson.fromJson(line, Response.class);
+            if (response == null) {
+                Platform.runLater(() -> {
+                    clientModel.setShowError(true);
+                    clientModel.setErrorMessage("internal server error");
+                });
+                return;
+            }
             System.out.println("received response: " + response);
             if (response.getStatusCode() == 200) {
                 Platform.runLater(() -> {
