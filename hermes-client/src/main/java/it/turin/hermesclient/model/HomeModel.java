@@ -12,9 +12,9 @@ import java.util.concurrent.locks.ReentrantLock;
 public class HomeModel {
     private ObjectProperty<Color> serverOn = new SimpleObjectProperty<>(Color.RED);
     private boolean serverLive = false;
-
     private final ReentrantLock lock = new ReentrantLock();
-    private ObservableList<String> emails = FXCollections.observableArrayList();
+
+    private final ObservableList<Email> emails = FXCollections.observableArrayList();
 
     public Color getServerOn() {
         return serverOn.get();
@@ -45,14 +45,14 @@ public class HomeModel {
         }
     }
 
-    public ObservableList<String> getEmails() {
+    public ObservableList<Email> getEmails() {
         return emails;
     }
 
-    public void addEmail(String emailArgument){
+    public void addEmail(Email email){
         Platform.runLater(() -> {
-            if (!emails.contains(emailArgument)) {
-                emails.add(emailArgument);
+            if (!emails.contains(email)) {
+                emails.add(email);
             }
         });
     }
