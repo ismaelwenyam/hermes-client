@@ -17,6 +17,9 @@ public class HomeController {
     private HomeModel homeModel;
 
     @FXML
+    public Label sentDate;
+
+    @FXML
     public ListView<String> emailList;
 
     @FXML
@@ -47,5 +50,21 @@ public class HomeController {
 
     public void shutdown() {
         //TODO stop scheduled tasks, like connection..
+    }
+
+    public void onAnswer () {
+
+    }
+
+    public void onAnswerAll () {
+
+    }
+
+    public void onForward () {
+
+    }
+
+    public void onDelete () {
+
     }
 }
