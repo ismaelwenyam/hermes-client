@@ -1,7 +1,6 @@
 package it.turin.hermesclient.utils;
 
 import java.util.List;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public final class EmailValidator {
@@ -13,11 +12,15 @@ public final class EmailValidator {
     }
 
     public static boolean allValid(List<String> emails) {
-        throw new UnsupportedOperationException("TODO");
+        for (String mail : emails) {
+            System.out.println("mail: " + mail);
+            if (!isValid(mail)) return false;
+        }
+        return true;
     }
 
     public static List<String> findInvalid(List<String> emails) {
-        throw new UnsupportedOperationException("TODO");
+        return emails.stream().filter(e -> !isValid(e)).toList();
     }
 }
 
