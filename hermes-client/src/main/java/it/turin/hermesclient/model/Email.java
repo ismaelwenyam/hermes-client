@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 public class Email implements Serializable {
 
@@ -37,6 +38,7 @@ public class Email implements Serializable {
     public Date getSentDate() {return this.sentDate;}
     public String getSender() {return this.sender;}
     public String getArgument() {return this.argument;}
+    public String getMailBody() {return this.mailBody;}
 
     public List<String> getRecipients(){
         return new ArrayList<>(this.recipients);
@@ -52,5 +54,17 @@ public class Email implements Serializable {
                 ", mailBody='" + mailBody + '\'' +
                 ", sentDate=" + sentDate +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof Email)) return false;
+        Email email = (Email) o;
+        return ID == email.ID;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(ID);
     }
 }

@@ -72,7 +72,7 @@ public class Pooling implements Runnable {
                         emailListType
                 );
                 for (Email mail : emails) {
-                    homeModel.addEmail(mail.getArgument());
+                    homeModel.addEmail(mail);
                 }
             } else {
                 System.out.println("something went wrong in pooling from server");
