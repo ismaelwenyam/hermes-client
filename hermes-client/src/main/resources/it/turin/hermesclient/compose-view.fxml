@@ -15,26 +15,26 @@
 
 <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.turin.hermesclient.controller.ComposeController">
    <children>
-      <GridPane prefHeight="109.0" prefWidth="600.0">
+      <GridPane hgap="5.0" prefHeight="109.0" prefWidth="600.0" vgap="5.0">
         <columnConstraints>
-          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+          <ColumnConstraints hgrow="SOMETIMES" maxWidth="278.4000244140625" minWidth="10.0" prefWidth="151.99998321533204" />
+          <ColumnConstraints hgrow="SOMETIMES" maxWidth="486.3999710083008" minWidth="10.0" prefWidth="416.800016784668" />
         </columnConstraints>
         <rowConstraints>
-          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+          <RowConstraints maxHeight="46.4" minHeight="10.0" prefHeight="36.000006103515624" vgrow="SOMETIMES" />
+          <RowConstraints maxHeight="46.39999809265136" minHeight="10.0" prefHeight="40.79999389648437" vgrow="SOMETIMES" />
         </rowConstraints>
          <children>
             <Label prefHeight="18.0" prefWidth="154.0" text="Oggetto" />
             <TextField fx:id="argumentTxtField" prefHeight="26.0" prefWidth="310.0" GridPane.columnIndex="1" />
             <Label prefHeight="18.0" prefWidth="154.0" text="A" GridPane.rowIndex="1" />
-            <TextField fx:id="recipientsTxtField" promptText="Separare mail da virgola" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+            <TextField fx:id="recipientsTxtField" promptText="Separare mail da ;" GridPane.columnIndex="1" GridPane.rowIndex="1" />
          </children>
       </GridPane>
       <TextArea fx:id="mailTxtArea" prefHeight="275.0" prefWidth="600.0" />
       <HBox prefHeight="52.0" prefWidth="600.0" spacing="20.0">
          <children>
-            <Label fx:id="errorLabel" prefHeight="40.0" prefWidth="191.0" text="Error Label" />
+            <Label fx:id="errorLabel" alignment="CENTER" prefHeight="40.0" prefWidth="191.0" style="-fx-background-color: red;" text="Error Label" textFill="WHITE" visible="false" />
             <FlowPane prefHeight="40.0" prefWidth="240.0">
                <HBox.margin>
                   <Insets />
