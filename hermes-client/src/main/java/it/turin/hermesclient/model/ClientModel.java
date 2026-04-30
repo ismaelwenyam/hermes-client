@@ -1,7 +1,6 @@
 package it.turin.hermesclient.model;
 
 import javafx.beans.property.*;
-import javafx.scene.paint.Color;
 
 public class ClientModel {
     private SimpleStringProperty email = new SimpleStringProperty();
