@@ -36,7 +36,7 @@ public class HomeController {
         this.clientModel = clientModel;
         this.homeModel = new HomeModel();
         loggedUser.textProperty().bind(clientModel.emailProperty());
-        serverStatus.fillProperty().bind(homeModel.serverOnProperty());
+        serverStatus.fillProperty().bind(clientModel.serverOnProperty());
         homeView.visibleProperty().bind(clientModel.userLoggedInProperty());
         emailList.setItems(homeModel.getEmails());
         emailList.setCellFactory(param -> new ListCell<>() {
@@ -58,7 +58,7 @@ public class HomeController {
             sentDate.setText(newValue.getSentDate().toString());
             mailArea.setText(newValue.getMailBody());
         });
-        ScheduledTasksExecutor scheduledTasksExecutor = new ScheduledTasksExecutor(homeModel, 8080);
+        ScheduledTasksExecutor scheduledTasksExecutor = new ScheduledTasksExecutor(clientModel, homeModel, 8080);
         new Thread(() -> {
             scheduledTasksExecutor.start();
         }).start();

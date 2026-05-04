@@ -10,21 +10,10 @@ import javafx.scene.paint.Color;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class HomeModel {
-    private ObjectProperty<Color> serverOn = new SimpleObjectProperty<>(Color.RED);
     private boolean serverLive = false;
     private final ReentrantLock lock = new ReentrantLock();
 
     private final ObservableList<Email> emails = FXCollections.observableArrayList();
-
-    public Color getServerOn() {
-        return serverOn.get();
-    }
-    public ObjectProperty<Color> serverOnProperty() {
-        return serverOn;
-    }
-    public void setServerOn(Color serverOn) {
-        this.serverOn.set(serverOn);
-    }
 
 
     public boolean readServerStatus() {

@@ -1,6 +1,7 @@
 package it.turin.hermesclient.model;
 
 import javafx.beans.property.*;
+import javafx.scene.paint.Color;
 
 public class ClientModel {
     private SimpleStringProperty email = new SimpleStringProperty();
@@ -8,6 +9,8 @@ public class ClientModel {
     private BooleanProperty userLoggedIn = new SimpleBooleanProperty(true); //TODO must be setted
     private BooleanProperty showError = new SimpleBooleanProperty(false);
     private SimpleStringProperty errorMessage = new SimpleStringProperty();
+    private ObjectProperty<Color> serverOn = new SimpleObjectProperty<>(Color.RED);
+
 
 
     public String getEmail() {
@@ -68,5 +71,15 @@ public class ClientModel {
 
     public void setUserLoggedIn(boolean userLoggedIn) {
         this.userLoggedIn.set(userLoggedIn);
+    }
+
+    public Color getServerOn() {
+        return serverOn.get();
+    }
+    public ObjectProperty<Color> serverOnProperty() {
+        return serverOn;
+    }
+    public void setServerOn(Color serverOn) {
+        this.serverOn.set(serverOn);
     }
 }
