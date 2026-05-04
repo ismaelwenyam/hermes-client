@@ -6,24 +6,28 @@ import com.google.gson.reflect.TypeToken;
 import it.turin.hermesclient.dto.Endpoint;
 import it.turin.hermesclient.dto.Request;
 import it.turin.hermesclient.dto.Response;
+import it.turin.hermesclient.model.ClientModel;
 import it.turin.hermesclient.model.ComposeModel;
 import it.turin.hermesclient.model.Email;
+import javafx.application.Platform;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.lang.reflect.Type;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 import java.util.Scanner;
 
 public class Forwarding implements Runnable {
+    private final ClientModel clientModel;
     private final ComposeModel composeModel;
     private final int port;
 
-    public Forwarding(ComposeModel composeModel, int port) {
+    public Forwarding(ClientModel clientModel, ComposeModel composeModel, int port) {
+        this.clientModel = clientModel;
         this.composeModel = composeModel;
         this.port = port;
     }
@@ -61,8 +65,27 @@ public class Forwarding implements Runnable {
             }
             System.out.println("received response: " + response);
             if (response.getStatusCode() == 200) {
-                //TODO mail sent
+                composeModel.setArgument("");
+                composeModel.setRecipients("");
+                composeModel.setTextBody("");
             } else {
+                Type emailListType = new TypeToken<List<String>>() {}.getType();
+
+                List<String> emails = gson.fromJson(
+                        gson.toJson(response.getResponseBody()),
+                        emailListType
+                );
+                Platform.runLater(() -> {
+                    clientModel.setErrorMessage("not found: " + emails);
+                    clientModel.setShowError(true);
+                    composeModel.setArgument(composeModel.getMail().getArgument());
+                    String unvalidEmails = "";
+                    for (String e : emails){
+                        unvalidEmails = unvalidEmails.concat(e + ";");
+                    }
+                    composeModel.setRecipients(unvalidEmails);
+                    composeModel.setTextBody(composeModel.getMail().getMailBody());
+                });
                 System.out.println("something went wrong in response from server");
             }
         } catch (IOException e) {
