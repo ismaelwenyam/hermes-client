@@ -10,59 +10,65 @@
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.ToolBar?>
 <?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.shape.Circle?>
 <?import javafx.scene.text.Font?>
 
-
-<BorderPane fx:id="homeView" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.turin.hermesclient.controller.HomeController">
+<BorderPane fx:id="homeView" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="678.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.turin.hermesclient.controller.HomeController">
    <top>
       <ToolBar prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
         <items>
           <Button fx:id="newEmailButton" mnemonicParsing="false" onMouseClicked="#onNewMessage" text="Nuovo messaggio" />
             <Separator orientation="VERTICAL" prefHeight="20.0" />
-            <FlowPane prefHeight="0.0" prefWidth="300.0" />
+            <FlowPane prefHeight="30.0" prefWidth="393.0" />
             <Label fx:id="loggedUser" prefHeight="18.0" prefWidth="113.0" text="email@hermes.it" />
             <Circle fx:id="serverStatus" fill="#1fff5f" radius="10.0" stroke="WHITE" strokeType="INSIDE" />
         </items>
       </ToolBar>
    </top>
-   <left>
-      <ListView fx:id="emailList" prefHeight="360.0" prefWidth="211.0" BorderPane.alignment="CENTER"/>
-   </left>
    <center>
       <VBox prefHeight="360.0" prefWidth="272.0" BorderPane.alignment="CENTER">
+         <BorderPane.margin>
+            <Insets />
+         </BorderPane.margin>
          <children>
-            <Label fx:id="argument" prefHeight="27.0" prefWidth="389.0" text="Oggetto">
-               <VBox.margin>
-                  <Insets bottom="10.0" />
-               </VBox.margin>
-               <font>
-                  <Font size="18.0" />
-               </font>
-               <padding>
-                  <Insets left="5.0" />
-               </padding>
-            </Label>
-            <Label fx:id="from" prefHeight="18.0" prefWidth="389.0" text="Da">
-               <VBox.margin>
-                  <Insets bottom="10.0" />
-               </VBox.margin>
-               <padding>
-                  <Insets left="5.0" />
-               </padding>
-            </Label>
-            <HBox prefHeight="30.0" prefWidth="389.0">
+            <GridPane>
+              <columnConstraints>
+                <ColumnConstraints hgrow="SOMETIMES" maxWidth="289.6000091552734" minWidth="10.0" prefWidth="289.6000091552734" />
+                <ColumnConstraints hgrow="SOMETIMES" maxWidth="259.99993896484375" minWidth="10.0" prefWidth="140.9999908447266" />
+                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="131.20001220703125" minWidth="10.0" prefWidth="15.20001220703125" />
+              </columnConstraints>
+              <rowConstraints>
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+              </rowConstraints>
                <children>
-                  <Label fx:id="to" prefHeight="18.0" prefWidth="226.0" text="A:">
+                  <Label fx:id="argument" prefHeight="27.0" prefWidth="389.0" text="Oggetto">
+                     <font>
+                        <Font size="18.0" />
+                     </font>
                      <padding>
                         <Insets left="5.0" />
                      </padding>
                   </Label>
-                  <Label fx:id="sentDate" prefHeight="18.0" prefWidth="124.0" text="Data" />
-                  <MenuButton mnemonicParsing="false" prefHeight="26.0" prefWidth="17.0">
+                  <Label fx:id="from" prefHeight="18.0" prefWidth="389.0" text="Da" GridPane.rowIndex="1">
+                     <padding>
+                        <Insets left="5.0" />
+                     </padding>
+                  </Label>
+                  <Label fx:id="to" prefHeight="30.0" prefWidth="287.0" text="A:" GridPane.rowIndex="2">
+                     <padding>
+                        <Insets left="5.0" />
+                     </padding>
+                  </Label>
+                  <Label fx:id="sentDate" prefHeight="18.0" prefWidth="156.0" text="Data" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                  <MenuButton mnemonicParsing="false" prefHeight="26.0" prefWidth="17.0" GridPane.columnIndex="2" GridPane.rowIndex="2">
                     <items>
                       <MenuItem mnemonicParsing="false" onAction="#onAnswer" text="Rispondi" />
                       <MenuItem mnemonicParsing="false" onAction="#onAnswerAll" text="Rispondi a tutti" />
@@ -71,12 +77,29 @@
                     </items>
                   </MenuButton>
                </children>
-            </HBox>
-            <TextArea fx:id="mailArea" prefHeight="252.0" prefWidth="389.0" />
+            </GridPane>
+            <TextArea fx:id="mailArea" prefHeight="242.0" prefWidth="377.0" />
          </children>
-         <BorderPane.margin>
-            <Insets />
-         </BorderPane.margin>
       </VBox>
    </center>
+   <left>
+      <VBox alignment="TOP_RIGHT" prefHeight="360.0" prefWidth="191.0" BorderPane.alignment="CENTER">
+         <children>
+            <ListView fx:id="emailList" prefHeight="333.0" prefWidth="191.0" />
+         </children>
+      </VBox>
+   </left>
+   <bottom>
+      <HBox prefHeight="30.0" prefWidth="678.0" spacing="15.0" BorderPane.alignment="CENTER">
+         <children>
+            <Label fx:id="page" prefHeight="31.0" prefWidth="43.0" text="1 - 5" />
+            <Label fx:id="totalMails" prefHeight="33.0" prefWidth="34.0" text="20" />
+            <Button mnemonicParsing="false" onMouseClicked="#onPrevious" text="&lt;" />
+            <Button mnemonicParsing="false" onMouseClicked="#onNext" text="&gt;" />
+         </children>
+         <BorderPane.margin>
+            <Insets left="15.0" />
+         </BorderPane.margin>
+      </HBox>
+   </bottom>
 </BorderPane>
