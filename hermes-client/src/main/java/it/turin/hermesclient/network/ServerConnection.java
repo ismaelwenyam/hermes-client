@@ -1,6 +1,7 @@
 package it.turin.hermesclient.network;
 
 import java.io.*;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 
 public class ServerConnection {
@@ -22,6 +23,12 @@ public class ServerConnection {
             }
             System.out.println("received response: " + jsonResponse);
             return jsonResponse;
+        }
+    }
+
+    public static void ping (String host, int port, int timeout) throws IOException {
+        try (Socket socket = new Socket()) {
+            socket.connect(new InetSocketAddress(host, port), timeout);
         }
     }
 }
