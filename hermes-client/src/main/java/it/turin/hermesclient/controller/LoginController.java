@@ -10,18 +10,12 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.VBox;
-
 import java.io.IOException;
 
 public class LoginController extends ClientController {
     private ClientModel clientModel;
     private Login login;
 
-    @FXML
-    public VBox loginView;
-    @FXML
-    public ProgressBar progessBar;
     @FXML
     public TextField emailField;
     @FXML
