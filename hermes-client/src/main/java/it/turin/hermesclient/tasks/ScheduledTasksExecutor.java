@@ -21,8 +21,8 @@ public class ScheduledTasksExecutor {
     }
 
     public void start () {
-        Connection connection = new Connection(clientModel, homeModel, port);
-        Pooling pooling = new Pooling(homeModel, port);
+        Ping connection = new Ping(clientModel, homeModel, port);
+        Pooling pooling = new Pooling(clientModel, homeModel, port);
         scheduledExecs.scheduleAtFixedRate(connection, 0, 20, TimeUnit.SECONDS);
         scheduledExecs.scheduleAtFixedRate(pooling, 0, 10, TimeUnit.SECONDS);
     }
