@@ -96,6 +96,7 @@
             <Label fx:id="totalMails" prefHeight="33.0" prefWidth="34.0" text="20" />
             <Button mnemonicParsing="false" onMouseClicked="#onPrevious" text="&lt;" />
             <Button mnemonicParsing="false" onMouseClicked="#onNext" text="&gt;" />
+            <Label fx:id="homeErrorLabel" prefHeight="30.0" prefWidth="462.0" style="-fx-background-color: red;" text="Label" textFill="WHITE" visible="false" />
          </children>
          <BorderPane.margin>
             <Insets left="15.0" />
