@@ -27,6 +27,11 @@ public class LoginController extends ClientController {
         clientModel.emailProperty().bind(emailField.textProperty());
     }
 
+    @Override
+    public void shutdown() {
+        clientModel.getTasksExecutor().shutdown();
+    }
+
     public void onLoginButton(MouseEvent mouseEvent) {
         loginButton.setVisible(false);
         if (!EmailValidator.isValid(emailField.getText().trim())) {

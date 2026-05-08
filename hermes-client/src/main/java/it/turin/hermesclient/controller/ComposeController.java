@@ -39,6 +39,11 @@ public class ComposeController extends ClientController {
         serverStatus.fillProperty().bind(clientModel.serverStatusColorProperty());
     }
 
+    @Override
+    public void shutdown() {
+        clientModel.getTasksExecutor().shutdown();
+    }
+
     public void onCancel(MouseEvent mouseEvent) {
         clientModel.setShowError(false);
         clientModel.setErrorMessage("");

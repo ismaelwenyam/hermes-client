@@ -91,6 +91,11 @@ public class HomeController extends ClientController {
         });
     }
 
+    @Override
+    public void shutdown() {
+        clientModel.getTasksExecutor().shutdown();
+    }
+
     private void refreshPage() {
         clientModel.setHomeShowError(false);
         int from = Integer.parseInt(clientModel.getPage()) * nrElements;
@@ -100,14 +105,7 @@ public class HomeController extends ClientController {
     }
 
     private void startTasks () {
-        ScheduledTasksExecutor scheduledTasksExecutor = new ScheduledTasksExecutor(new Ping(clientModel, 8080), new Pooling(clientModel, 8080));
-        new Thread(() -> {
-            scheduledTasksExecutor.start();
-        }).start();
-    }
-
-    public void shutdown() {
-        //TODO stop scheduled tasks, like connection..
+        clientModel.getTasksExecutor().start(new Ping(clientModel, 8080), new Pooling(clientModel, 8080));
     }
 
     public void onNewMessage(MouseEvent mouseEvent) {
