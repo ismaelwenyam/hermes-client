@@ -47,7 +47,7 @@
                   <Insets />
                </HBox.margin>
             </FlowPane>
-            <Button mnemonicParsing="false" onMouseClicked="#onCancel" prefHeight="26.0" prefWidth="74.0" text="Annulla" />
+            <Button mnemonicParsing="false" onMouseClicked="#onCancel" prefHeight="26.0" prefWidth="74.0" text="Indietro" />
             <Button mnemonicParsing="false" onMouseClicked="#onReset" prefHeight="26.0" prefWidth="81.0" text="Reset" />
             <Button mnemonicParsing="false" onMouseClicked="#onSend" prefHeight="26.0" prefWidth="86.0" text="Invia" />
          </children>
