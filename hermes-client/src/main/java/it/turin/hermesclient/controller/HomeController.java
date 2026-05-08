@@ -40,20 +40,23 @@ public class HomeController extends ClientController {
     @FXML public Label totalMails;
 
     @FXML  public Label homeErrorLabel;
+    @FXML public Label newMessageLabel;
 
 
     public void init(ClientModel clientModel) {
         this.clientModel = clientModel;
+        clientModel.getSortedEmails().setComparator(Email::compareTo);
         startTasks();
         loggedUser.textProperty().bind(clientModel.emailProperty());
         serverStatus.fillProperty().bind(clientModel.serverStatusColorProperty());
         homeErrorLabel.textProperty().bind(clientModel.homeErrorMessageProperty());
         homeErrorLabel.visibleProperty().bind(clientModel.homeShowErrorProperty());
+        newMessageLabel.visibleProperty().bind(clientModel.newMessageProperty());
 
         //pooling execution result
-        emailList.setItems(clientModel.getCurrentPageEmails());
-        clientModel.getEmails().addListener((ListChangeListener<? super Email>) changeListener -> {
-            refreshPage();
+        emailList.setItems(clientModel.getSortedEmails());
+        clientModel.getEmails().addListener((javafx.collections.ListChangeListener<Email>) c -> {
+            updatePage();
         });
         totalMails.textProperty().bind(clientModel.emailsCountProperty());
         page.textProperty().bind(clientModel.pageProperty());
@@ -70,6 +73,7 @@ public class HomeController extends ClientController {
             }
         });
         emailList.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            clientModel.setNewMessage(false);
             if (newValue != null) {
                 clientModel.setSelectedEmailId(String.valueOf(newValue.getID()));
                 argument.setText(newValue.getArgument());
@@ -95,16 +99,6 @@ public class HomeController extends ClientController {
     @Override
     public void shutdown() {
         clientModel.getTasksExecutor().shutdown();
-    }
-
-    private void refreshPage() {
-        clientModel.setHomeShowError(false);
-        int from = Integer.parseInt(clientModel.getPage()) * nrElements;
-        int to = Math.min(from + nrElements, clientModel.getEmails().size());
-        System.out.println("from: " + from + " to: " + to);
-        //inverted operands to achieve desc ordering
-        clientModel.getEmails().sort((e1, e2) -> e1.compareTo(e2));
-        clientModel.getCurrentPageEmails().setAll(clientModel.getEmails().subList(from, to));
     }
 
     private void startTasks () {
@@ -187,20 +181,28 @@ public class HomeController extends ClientController {
     }
 
     public void onPrevious(MouseEvent mouseEvent) {
-        int page = Integer.parseInt(clientModel.getPage());
-        if (page-1 >= 0){
-            clientModel.setPage(String.valueOf(page-1));
-            refreshPage();
+        int p = Integer.parseInt(clientModel.getPage());
+        if (p - 1 >= 0) {
+            clientModel.setPage(String.valueOf(p - 1));
+            updatePage();
         }
     }
 
     public void onNext(MouseEvent mouseEvent) {
-        System.out.println("actual page: " + clientModel.getPage());
-        int page = Integer.parseInt(clientModel.getPage());
-        if ((page+1) >= clientModel.getEmails().size()/nrElements)
-            return;
-        clientModel.setPage(String.valueOf(page+1));
-        refreshPage();
+        int p = Integer.parseInt(clientModel.getPage());
+        if ((p + 1) >= clientModel.getSortedEmails().size() / nrElements) return;
+        clientModel.setPage(String.valueOf(p + 1));
+        updatePage();
     }
 
+    private void updatePage() {
+        int page = Integer.parseInt(clientModel.getPage());
+        int from = page * nrElements;
+        int to = Math.min(from + nrElements, clientModel.getSortedEmails().size());
+        emailList.setItems(
+                FXCollections.observableArrayList(
+                        clientModel.getSortedEmails().subList(from, to)
+                )
+        );
+    }
 }

@@ -5,6 +5,7 @@ import javafx.application.Platform;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.SortedList;
 import javafx.scene.paint.Color;
 
 import java.util.concurrent.locks.ReentrantLock;
@@ -27,10 +28,11 @@ public class ClientModel {
 
     //home
     private final ObservableList<Email> emails = FXCollections.observableArrayList();
-    private final ObservableList<Email> currentPageEmails = FXCollections.observableArrayList();
+    private final SortedList<Email> sortedEmails = new SortedList<>(emails);
     private SimpleStringProperty page = new SimpleStringProperty("0");
     private BooleanProperty homeShowError = new SimpleBooleanProperty(false);
     private SimpleStringProperty homeErrorMessage = new SimpleStringProperty();
+    private SimpleBooleanProperty newMessage = new SimpleBooleanProperty(false);
 
     public SimpleBooleanProperty serverLiveProperty() {
         return serverLive;
@@ -180,6 +182,12 @@ public class ClientModel {
 
     }
 
+    public SortedList<Email> getSortedEmails() {
+        return sortedEmails;
+    }
+
+
+
     public String getPage() {
         return page.get();
     }
@@ -238,10 +246,6 @@ public class ClientModel {
         this.selectedEmailId = selectedEmailId;
     }
 
-    public ObservableList<Email> getCurrentPageEmails() {
-        return currentPageEmails;
-    }
-
     public boolean isHomeShowError() {
         return homeShowError.get();
     }
@@ -268,5 +272,17 @@ public class ClientModel {
 
     public ScheduledTasksExecutor getTasksExecutor() {
         return tasksExecutor;
+    }
+
+    public boolean isNewMessage() {
+        return newMessage.get();
+    }
+
+    public SimpleBooleanProperty newMessageProperty() {
+        return newMessage;
+    }
+
+    public void setNewMessage(boolean newMessage) {
+        this.newMessage.set(newMessage);
     }
 }

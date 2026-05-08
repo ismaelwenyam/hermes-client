@@ -69,6 +69,9 @@ public class Pooling implements Runnable {
                     clientModel.addEmail(mail);
                 }
                 Platform.runLater(() -> {
+                    if (Long.parseLong(clientModel.getEmailsCount()) < emailWrapper.getEmailsCount()) {
+                        clientModel.setNewMessage(true);
+                    }
                     clientModel.setEmailsCount(String.valueOf(emailWrapper.getEmailsCount()));
                 });
             }
