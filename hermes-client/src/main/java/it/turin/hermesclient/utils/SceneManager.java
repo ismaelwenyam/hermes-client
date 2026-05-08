@@ -23,6 +23,9 @@ public class SceneManager {
         if (controller instanceof ClientController clientController) {
             clientController.init(model);
         }
+        stage.setOnCloseRequest(e -> {
+
+        });
         stage.setScene(scene);
     }
 }
