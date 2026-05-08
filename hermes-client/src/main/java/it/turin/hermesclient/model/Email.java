@@ -1,12 +1,9 @@
 package it.turin.hermesclient.model;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
-public class Email implements Serializable {
+public class Email implements Serializable, Comparable<Email> {
 
     private static final long serialVersionUID = -21548911354897L;
 
@@ -58,13 +55,17 @@ public class Email implements Serializable {
 
     @Override
     public boolean equals(Object o) {
-        if (!(o instanceof Email)) return false;
-        Email email = (Email) o;
+        if (!(o instanceof Email email)) return false;
         return ID == email.ID;
     }
 
     @Override
     public int hashCode() {
         return Objects.hashCode(ID);
+    }
+
+    @Override
+    public int compareTo(Email o) {
+        return o.getSentDate().compareTo(this.sentDate);
     }
 }

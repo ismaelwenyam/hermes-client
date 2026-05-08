@@ -17,6 +17,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 
 import java.io.IOException;
+import java.util.Comparator;
 import java.util.List;
 
 public class HomeController extends ClientController {
@@ -101,6 +102,8 @@ public class HomeController extends ClientController {
         int from = Integer.parseInt(clientModel.getPage()) * nrElements;
         int to = Math.min(from + nrElements, clientModel.getEmails().size());
         System.out.println("from: " + from + " to: " + to);
+        //inverted operands to achieve desc ordering
+        clientModel.getEmails().sort((e1, e2) -> e1.compareTo(e2));
         clientModel.getCurrentPageEmails().setAll(clientModel.getEmails().subList(from, to));
     }
 
