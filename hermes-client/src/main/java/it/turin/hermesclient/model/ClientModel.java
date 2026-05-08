@@ -1,5 +1,6 @@
 package it.turin.hermesclient.model;
 
+import it.turin.hermesclient.tasks.ScheduledTasksExecutor;
 import javafx.application.Platform;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
@@ -9,6 +10,9 @@ import javafx.scene.paint.Color;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class ClientModel {
+
+    private final ScheduledTasksExecutor tasksExecutor = new ScheduledTasksExecutor();
+
     private SimpleStringProperty email = new SimpleStringProperty();
     private BooleanProperty userNotLoggedIn = new SimpleBooleanProperty(true);
     private BooleanProperty userLoggedIn = new SimpleBooleanProperty(true);
@@ -260,5 +264,9 @@ public class ClientModel {
 
     public void setHomeErrorMessage(String homeErrorMessage) {
         this.homeErrorMessage.set(homeErrorMessage);
+    }
+
+    public ScheduledTasksExecutor getTasksExecutor() {
+        return tasksExecutor;
     }
 }
