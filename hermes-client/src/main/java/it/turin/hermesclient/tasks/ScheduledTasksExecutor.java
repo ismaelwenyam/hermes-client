@@ -1,29 +1,22 @@
 package it.turin.hermesclient.tasks;
 
-import it.turin.hermesclient.model.ClientModel;
-import it.turin.hermesclient.model.HomeModel;
-
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class ScheduledTasksExecutor {
-    private final ClientModel clientModel;
-    private final HomeModel homeModel;
-    private final int port;
+    private final Ping ping;
+    private final Pooling pooling;
     private final ScheduledExecutorService scheduledExecs;
 
-    public ScheduledTasksExecutor(ClientModel clientModel, HomeModel homeModel, int port) {
-        this.clientModel = clientModel;
-        this.homeModel = homeModel;
-        this.port = port;
+    public ScheduledTasksExecutor(Ping ping,Pooling pooling) {
+        this.ping = ping;
+        this.pooling = pooling;
         this.scheduledExecs = Executors.newScheduledThreadPool(2);
     }
 
     public void start () {
-        Ping connection = new Ping(clientModel, homeModel, port);
-        Pooling pooling = new Pooling(clientModel, homeModel, port);
-        scheduledExecs.scheduleAtFixedRate(connection, 0, 20, TimeUnit.SECONDS);
+        scheduledExecs.scheduleAtFixedRate(ping, 0, 20, TimeUnit.SECONDS);
         scheduledExecs.scheduleAtFixedRate(pooling, 0, 10, TimeUnit.SECONDS);
     }
 
