@@ -1,17 +1,51 @@
 package it.turin.hermesclient.model;
 
+import javafx.application.Platform;
 import javafx.beans.property.*;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.scene.paint.Color;
+
+import java.util.concurrent.locks.ReentrantLock;
 
 public class ClientModel {
     private SimpleStringProperty email = new SimpleStringProperty();
     private BooleanProperty userNotLoggedIn = new SimpleBooleanProperty(true);
-    private BooleanProperty userLoggedIn = new SimpleBooleanProperty(true); //TODO must be setted
+    private BooleanProperty userLoggedIn = new SimpleBooleanProperty(true);
     private BooleanProperty showError = new SimpleBooleanProperty(false);
     private SimpleStringProperty errorMessage = new SimpleStringProperty();
-    private ObjectProperty<Color> serverOn = new SimpleObjectProperty<>(Color.RED);
+    private ObjectProperty<Color> serverStatusColor = new SimpleObjectProperty<>(Color.RED);
+    private SimpleStringProperty argument = new SimpleStringProperty("");
+    private SimpleStringProperty recipients = new SimpleStringProperty("");
 
 
+    private SimpleStringProperty emailsCount = new SimpleStringProperty("0");
+
+    //home
+    private final ObservableList<Email> emails = FXCollections.observableArrayList();
+    private final ObservableList<Email> currentPageEmails = FXCollections.observableArrayList();
+    private SimpleStringProperty page = new SimpleStringProperty("0");
+    private BooleanProperty homeShowError = new SimpleBooleanProperty(false);
+    private SimpleStringProperty homeErrorMessage = new SimpleStringProperty();
+
+    public SimpleBooleanProperty serverLiveProperty() {
+        return serverLive;
+    }
+
+    public void setServerLive(boolean serverLive) {
+        this.serverLive.set(serverLive);
+    }
+
+    private SimpleBooleanProperty serverLive = new SimpleBooleanProperty(false);
+    private final ReentrantLock lock = new ReentrantLock();
+    private String selectedEmailId;
+    //
+
+
+    //compose
+    private SimpleStringProperty textBody = new SimpleStringProperty("");
+    private Email mail;
+    //
 
     public String getEmail() {
         return email.get();
@@ -73,13 +107,158 @@ public class ClientModel {
         this.userLoggedIn.set(userLoggedIn);
     }
 
-    public Color getServerOn() {
-        return serverOn.get();
+    public Color getServerStatusColor() {
+        return serverStatusColor.get();
     }
-    public ObjectProperty<Color> serverOnProperty() {
-        return serverOn;
+    public ObjectProperty<Color> serverStatusColorProperty() {
+        return serverStatusColor;
     }
-    public void setServerOn(Color serverOn) {
-        this.serverOn.set(serverOn);
+    public void setServerStatusColor(Color serverStatusColor) {
+        this.serverStatusColor.set(serverStatusColor);
+    }
+
+    public String getArgument() {
+        return argument.get();
+    }
+
+    public SimpleStringProperty argumentProperty() {
+        return argument;
+    }
+
+    public void setArgument(String argument) {
+        this.argument.set(argument);
+    }
+
+    public String getRecipients() {
+        return recipients.get();
+    }
+
+    public SimpleStringProperty recipientsProperty() {
+        return recipients;
+    }
+
+    public void setRecipients(String recipients) {
+        this.recipients.set(recipients);
+    }
+
+    public String getEmailsCount() {
+        return emailsCount.get();
+    }
+
+    public SimpleStringProperty emailsCountProperty() {
+        return emailsCount;
+    }
+
+    public void setEmailsCount(String emailsCount) {
+        this.emailsCount.set(emailsCount);
+    }
+
+    public ObservableList<Email> getEmails() {
+        return emails;
+    }
+
+    public void addEmail(Email email){
+        Platform.runLater(() -> {
+            if (!emails.contains(email)) {
+                emails.add(email);
+            }
+        });
+    }
+
+    public void removeEmail(long id) {
+        for (Email email : emails) {
+            if (email.getID() == id){
+                Platform.runLater(() -> {
+                    emails.remove(email);
+                });
+            }
+        }
+
+    }
+
+    public String getPage() {
+        return page.get();
+    }
+
+    public SimpleStringProperty pageProperty() {
+        return page;
+    }
+
+    public void setPage(String page) {
+        this.page.set(page);
+    }
+
+    public boolean isServerLive() {
+        lock.lock();
+        try {
+            return serverLive.get();
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    public void updateServerStatus(boolean status) {
+        lock.lock();
+        try {
+            serverLive.set(status);
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    public String getTextBody() {
+        return textBody.get();
+    }
+
+    public SimpleStringProperty textBodyProperty() {
+        return textBody;
+    }
+
+    public void setTextBody(String textBody) {
+        this.textBody.set(textBody);
+    }
+
+    public Email getMail() {
+        return new Email(mail.getSender(), mail.getRecipients(), mail.getArgument(), mail.getMailBody(), mail.getSentDate());
+    }
+
+    public void setMail(Email mail) {
+        this.mail = mail;
+    }
+
+    public String getSelectedEmailId() {
+        return selectedEmailId;
+    }
+
+    public void setSelectedEmailId(String selectedEmailId) {
+        this.selectedEmailId = selectedEmailId;
+    }
+
+    public ObservableList<Email> getCurrentPageEmails() {
+        return currentPageEmails;
+    }
+
+    public boolean isHomeShowError() {
+        return homeShowError.get();
+    }
+
+    public BooleanProperty homeShowErrorProperty() {
+        return homeShowError;
+    }
+
+    public void setHomeShowError(boolean homeShowError) {
+        this.homeShowError.set(homeShowError);
+    }
+
+    public String getHomeErrorMessage() {
+        return homeErrorMessage.get();
+    }
+
+    public SimpleStringProperty homeErrorMessageProperty() {
+        return homeErrorMessage;
+    }
+
+    public void setHomeErrorMessage(String homeErrorMessage) {
+        this.homeErrorMessage.set(homeErrorMessage);
     }
 }
