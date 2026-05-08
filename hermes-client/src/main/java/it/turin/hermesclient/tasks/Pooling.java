@@ -1,6 +1,5 @@
 package it.turin.hermesclient.tasks;
 import com.google.gson.Gson;
-import com.google.gson.JsonIOException;
 import com.google.gson.reflect.TypeToken;
 import it.turin.hermesclient.dto.EmailWrapper;
 import it.turin.hermesclient.dto.Endpoint;
@@ -8,7 +7,6 @@ import it.turin.hermesclient.dto.Request;
 import it.turin.hermesclient.dto.Response;
 import it.turin.hermesclient.model.ClientModel;
 import it.turin.hermesclient.model.Email;
-import it.turin.hermesclient.model.HomeModel;
 import it.turin.hermesclient.network.ServerConnection;
 import javafx.application.Platform;
 import javafx.scene.paint.Color;
@@ -23,37 +21,35 @@ import java.util.Map;
 
 public class Pooling implements Runnable {
     private final ClientModel clientModel;
-    private final HomeModel homeModel;
     private final int port;
 
-    public Pooling(ClientModel clientModel, HomeModel homeModel, int port) {
+    public Pooling(ClientModel clientModel, int port) {
         this.clientModel = clientModel;
-        this.homeModel = homeModel;
         this.port = port;
     }
 
     @Override
     public void run() {
-        if (!homeModel.readServerStatus()) return;
+        if (!clientModel.isServerLive()) return;
         //TODO pooling must execute only if the number of mails present are less than the desired number
         System.out.println("start pooling task");
         Map<String, Object> requestParams = new HashMap<>();
         requestParams.put("account", clientModel.getEmail());
-        requestParams.put("page", homeModel.getPage());
+        requestParams.put("page", clientModel.getPage());
         Request<Email> request = new Request<>(Endpoint.GET_EMAILS, requestParams, null);
         Gson gson = new Gson();
         String jsonRequest = gson.toJson(request);
         String jsonResponse;
         try {
-            jsonResponse = ServerConnection.sendRequest(jsonRequest, InetAddress.getLocalHost().toString(), port);
+            jsonResponse = ServerConnection.sendRequest(jsonRequest, InetAddress.getLocalHost().getHostAddress(), port);
         } catch (UnknownHostException e) {
             System.err.println("unkown host exception in pooling: " + e.getMessage());
             return;
         } catch (IOException e) {
             System.err.println("server unavailable in pooling: " + e.getMessage());
             Platform.runLater(() -> {
-                homeModel.updateServerStatus(false);
-                clientModel.setServerOn(Color.RED);
+                clientModel.updateServerStatus(false);
+                clientModel.setServerStatusColor(Color.RED);
             });
             return;
         }
@@ -69,12 +65,12 @@ public class Pooling implements Runnable {
 
             if (emailWrapper != null && emailWrapper.getEmails() != null) {
                 List<Email> emails = emailWrapper.getEmails();
+                for (Email mail : emails) {
+                    clientModel.addEmail(mail);
+                }
                 Platform.runLater(() -> {
                     clientModel.setEmailsCount(String.valueOf(emailWrapper.getEmailsCount()));
                 });
-                for (Email mail : emails) {
-                    homeModel.addEmail(mail);
-                }
             }
         } else if (response.getStatusCode() == 404) {
             System.out.println("no emails found");
