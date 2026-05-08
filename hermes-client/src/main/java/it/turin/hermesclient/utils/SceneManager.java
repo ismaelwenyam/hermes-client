@@ -22,10 +22,10 @@ public class SceneManager {
         Object controller = loader.getController();
         if (controller instanceof ClientController clientController) {
             clientController.init(model);
+            stage.setOnCloseRequest(e -> {
+                clientController.shutdown();
+            });
         }
-        stage.setOnCloseRequest(e -> {
-
-        });
         stage.setScene(scene);
     }
 }
