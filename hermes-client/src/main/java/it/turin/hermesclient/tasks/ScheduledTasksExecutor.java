@@ -5,22 +5,14 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class ScheduledTasksExecutor {
-    private final Ping ping;
-    private final Pooling pooling;
-    private final ScheduledExecutorService scheduledExecs;
+    private final ScheduledExecutorService scheduledExecs = Executors.newScheduledThreadPool(2);
 
-    public ScheduledTasksExecutor(Ping ping,Pooling pooling) {
-        this.ping = ping;
-        this.pooling = pooling;
-        this.scheduledExecs = Executors.newScheduledThreadPool(2);
-    }
-
-    public void start () {
+    public void start (Ping ping,Pooling pooling) {
         scheduledExecs.scheduleAtFixedRate(ping, 0, 20, TimeUnit.SECONDS);
         scheduledExecs.scheduleAtFixedRate(pooling, 0, 10, TimeUnit.SECONDS);
     }
 
-    public void stop () {
+    public void shutdown () {
         scheduledExecs.shutdown();
     }
 }
