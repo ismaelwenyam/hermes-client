@@ -25,7 +25,8 @@
         <items>
           <Button fx:id="newEmailButton" mnemonicParsing="false" onMouseClicked="#onNewMessage" text="Nuovo messaggio" />
             <Separator orientation="VERTICAL" prefHeight="20.0" />
-            <FlowPane prefHeight="30.0" prefWidth="393.0" />
+            <FlowPane prefHeight="30.0" prefWidth="267.0" />
+            <Label fx:id="newMessageLabel" prefHeight="18.0" prefWidth="121.0" text="nuovo messaggio" visible="false" />
             <Label fx:id="loggedUser" prefHeight="18.0" prefWidth="113.0" text="email@hermes.it" />
             <Circle fx:id="serverStatus" fill="#1fff5f" radius="10.0" stroke="WHITE" strokeType="INSIDE" />
         </items>
