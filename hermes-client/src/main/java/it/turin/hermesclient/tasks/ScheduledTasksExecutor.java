@@ -9,7 +9,7 @@ public class ScheduledTasksExecutor {
 
     public void start (Ping ping,Pooling pooling) {
         scheduledExecs.scheduleAtFixedRate(ping, 0, 20, TimeUnit.SECONDS);
-        scheduledExecs.scheduleAtFixedRate(pooling, 0, 10, TimeUnit.SECONDS);
+        scheduledExecs.scheduleAtFixedRate(pooling, 0, 2, TimeUnit.SECONDS);
     }
 
     public void shutdown () {

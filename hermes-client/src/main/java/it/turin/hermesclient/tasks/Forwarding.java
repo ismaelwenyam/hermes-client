@@ -18,6 +18,7 @@ import java.net.UnknownHostException;
 import java.util.List;
 
 public class Forwarding implements Runnable {
+    private static final Gson gson = new Gson();
     private final ClientModel clientModel;
     private final int port;
 
@@ -32,7 +33,6 @@ public class Forwarding implements Runnable {
         //TODO if server is offline do something
         System.out.println("start forwarding task");
         Request<Email> request = new Request<>(Endpoint.POST_EMAIL, null, clientModel.getMail());
-        Gson gson = new Gson();
         String jsonRequest = gson.toJson(request);
         String jsonResponse;
         try {
@@ -51,7 +51,7 @@ public class Forwarding implements Runnable {
             return;
         }
         System.out.println("received response: " + jsonResponse);
-        Response response = gson.fromJson(jsonResponse, Response.class);
+        Response<?> response = gson.fromJson(jsonResponse, Response.class);
         if (response == null) {
             System.out.println("something went wrong in response from server");
             return;
@@ -79,7 +79,6 @@ public class Forwarding implements Runnable {
                 for (String e : emails){
                     unvalidEmails = unvalidEmails.concat(e + ";");
                 }
-                //clientModel.setRecipients(unvalidEmails);
                 clientModel.setTextBody(clientModel.getMail().getMailBody());
             });
             System.out.println("something went wrong in response from server");

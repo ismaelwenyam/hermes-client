@@ -27,7 +27,7 @@ public class Login extends Task<Boolean> {
         System.out.println("start login task");
         Map<String, Object> requestParams = new HashMap<>();
         requestParams.put("account", clientModel.getEmail());
-        Request request = new Request(Endpoint.GET_USER, requestParams, null);
+        Request<Void> request = new Request<>(Endpoint.GET_USER, requestParams, null);
         Gson gson = new Gson();
         String jsonRequest = gson.toJson(request);
         String jsonResponse;

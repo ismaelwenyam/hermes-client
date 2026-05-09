@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 public class Pooling implements Runnable {
+    private static final Gson gson = new Gson();
     private final ClientModel clientModel;
     private final int port;
 
@@ -37,7 +38,6 @@ public class Pooling implements Runnable {
         requestParams.put("account", clientModel.getEmail());
         requestParams.put("page", clientModel.getPage());
         Request<Email> request = new Request<>(Endpoint.GET_EMAILS, requestParams, null);
-        Gson gson = new Gson();
         String jsonRequest = gson.toJson(request);
         String jsonResponse;
         try {

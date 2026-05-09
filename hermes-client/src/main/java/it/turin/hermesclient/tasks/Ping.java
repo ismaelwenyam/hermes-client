@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Ping implements Runnable {
+    private static final Gson gson = new Gson();
     private final ClientModel clientModel;
     private final int port;
 
@@ -28,7 +29,6 @@ public class Ping implements Runnable {
         Map<String, Object> requestParams = new HashMap<>();
         requestParams.put("account", clientModel.getEmail());
         Request<Email> request = new Request<>(Endpoint.PING, requestParams, null);
-        Gson gson = new Gson();
         String jsonRequest = gson.toJson(request);
         try {
             ServerConnection.sendRequest(jsonRequest, InetAddress.getLocalHost().getHostAddress(), port);

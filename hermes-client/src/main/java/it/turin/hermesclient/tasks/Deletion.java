@@ -18,6 +18,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Deletion implements Runnable {
+    private static final Gson gson = new Gson();
+
     private final ClientModel clientModel;
     private final int port;
 
@@ -33,8 +35,7 @@ public class Deletion implements Runnable {
         Map<String, Object> requestParams = new HashMap<>();
         requestParams.put("account", clientModel.getEmail());
         requestParams.put("emailId", clientModel.getSelectedEmailId());
-        Request<Email> request = new Request<>(Endpoint.DELETE_EMAIL, requestParams, null);
-        Gson gson = new Gson();
+        Request<?> request = new Request<>(Endpoint.DELETE_EMAIL, requestParams, null);
         String jsonRequest = gson.toJson(request);
         String jsonResponse;
         try {
@@ -50,7 +51,7 @@ public class Deletion implements Runnable {
             });
             return;
         }
-        Response response = gson.fromJson(jsonResponse, Response.class);
+        Response<?> response = gson.fromJson(jsonResponse, Response.class);
         if (response == null) {
             System.out.println("something went wrong in response from server");
             return;
