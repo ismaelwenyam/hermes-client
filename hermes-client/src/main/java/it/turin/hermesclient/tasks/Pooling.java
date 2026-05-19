@@ -37,8 +37,8 @@ public class Pooling implements Runnable {
             try {
                 clientModel.getPool().acquire();
             } catch (InterruptedException e) {
-                System.err.println("exeception occured: " + e.getMessage() + " " + e);
-                continue;
+                System.err.println("exeception occured in pooling: " + e.getMessage() + " " + e);
+                return;
             }
             System.out.println("pool-t2");
             Map<String, Object> requestParams = new HashMap<>();

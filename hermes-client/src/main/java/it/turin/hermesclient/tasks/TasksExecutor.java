@@ -17,6 +17,6 @@ public class TasksExecutor {
 
     public void shutdown () {
         scheduledExecs.shutdown();
-        exec.shutdown();
+        exec.shutdownNow();
     }
 }
