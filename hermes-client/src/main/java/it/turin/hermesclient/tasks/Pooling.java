@@ -31,55 +31,63 @@ public class Pooling implements Runnable {
 
     @Override
     public void run() {
-        if (!clientModel.isServerLive()) return;
-        //TODO pooling must execute only if the number of mails present are less than the desired number
-        System.out.println("start pooling task");
-        Map<String, Object> requestParams = new HashMap<>();
-        requestParams.put("account", clientModel.getEmail());
-        requestParams.put("page", clientModel.getPage());
-        Request<Email> request = new Request<>(Endpoint.GET_EMAILS, requestParams, null);
-        String jsonRequest = gson.toJson(request);
-        String jsonResponse;
-        try {
-            jsonResponse = ServerConnection.sendRequest(jsonRequest, InetAddress.getLocalHost().getHostAddress(), port);
-        } catch (UnknownHostException e) {
-            System.err.println("unkown host exception in pooling: " + e.getMessage());
-            return;
-        } catch (IOException e) {
-            System.err.println("server unavailable in pooling: " + e.getMessage());
-            Platform.runLater(() -> {
-                clientModel.updateServerStatus(false);
-                clientModel.setServerStatusColor(Color.RED);
-            });
-            return;
-        }
-        System.out.println("received response: " + jsonResponse);
-        Type type = new TypeToken<Response<EmailWrapper>>() {}.getType();
-        Response<EmailWrapper> response = gson.fromJson(jsonResponse, type);
-        if (response == null) {
-            System.out.println("failed to parse response");
-            return;
-        }
-        if (response.getStatusCode() == 200) {
-            EmailWrapper emailWrapper = response.getResponseBody();
-
-            if (emailWrapper != null && emailWrapper.getEmails() != null) {
-                List<Email> emails = emailWrapper.getEmails();
-                for (Email mail : emails) {
-                    clientModel.addEmail(mail);
-                }
-                Platform.runLater(() -> {
-                    if (Long.parseLong(clientModel.getEmailsCount()) < emailWrapper.getEmailsCount()) {
-                        clientModel.setNewMessage(true);
-                    }
-                    clientModel.setEmailsCount(String.valueOf(emailWrapper.getEmailsCount()));
-                });
+        System.out.println("start pooling");
+        while (true) {
+            System.out.println("pooling...");
+            try {
+                clientModel.getPool().acquire();
+            } catch (InterruptedException e) {
+                System.err.println("exeception occured: " + e.getMessage() + " " + e);
+                continue;
             }
-        } else if (response.getStatusCode() == 404) {
-            System.out.println("no emails found");
-        } else {
-            System.out.println("server error, status: " + response.getStatusCode());
+            System.out.println("pool-t2");
+            Map<String, Object> requestParams = new HashMap<>();
+            requestParams.put("account", clientModel.getEmail());
+            requestParams.put("page", clientModel.getPage());
+            Request<Email> request = new Request<>(Endpoint.GET_EMAILS, requestParams, null);
+            String jsonRequest = gson.toJson(request);
+            String jsonResponse;
+            try {
+                jsonResponse = ServerConnection.sendRequest(jsonRequest, InetAddress.getLocalHost().getHostAddress(), port);
+            } catch (UnknownHostException e) {
+                System.err.println("unkown host exception in pooling: " + e.getMessage());
+                return;
+            } catch (IOException e) {
+                System.err.println("server unavailable in pooling: " + e.getMessage());
+                Platform.runLater(() -> {
+                    clientModel.updateServerStatus(false);
+                    clientModel.setServerStatusColor(Color.RED);
+                });
+                return;
+            }
+            System.out.println("received response: " + jsonResponse);
+            Type type = new TypeToken<Response<EmailWrapper>>() {}.getType();
+            Response<EmailWrapper> response = gson.fromJson(jsonResponse, type);
+            if (response == null) {
+                System.out.println("failed to parse response");
+                return;
+            }
+            if (response.getStatusCode() == 200) {
+                EmailWrapper emailWrapper = response.getResponseBody();
+
+                if (emailWrapper != null && emailWrapper.getEmails() != null) {
+                    List<Email> emails = emailWrapper.getEmails();
+                    for (Email mail : emails) {
+                        clientModel.addEmail(mail);
+                    }
+                    Platform.runLater(() -> {
+                        if (Long.parseLong(clientModel.getEmailsCount()) < emailWrapper.getEmailsCount()) {
+                            clientModel.setNewMessage(true);
+                        }
+                        clientModel.setEmailsCount(String.valueOf(emailWrapper.getEmailsCount()));
+                    });
+                }
+            } else if (response.getStatusCode() == 404) {
+                System.out.println("no emails found");
+            } else {
+                System.out.println("server error, status: " + response.getStatusCode());
+            }
+            System.out.println("end pooling task");
         }
-        System.out.println("end pooling task");
     }
 }

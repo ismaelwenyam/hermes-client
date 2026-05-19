@@ -1,6 +1,6 @@
 package it.turin.hermesclient.model;
 
-import it.turin.hermesclient.tasks.ScheduledTasksExecutor;
+import it.turin.hermesclient.tasks.TasksExecutor;
 import javafx.application.Platform;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
@@ -8,11 +8,15 @@ import javafx.collections.ObservableList;
 import javafx.collections.transformation.SortedList;
 import javafx.scene.paint.Color;
 
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class ClientModel {
+    private boolean taskStarted = false;
 
-    private final ScheduledTasksExecutor tasksExecutor = new ScheduledTasksExecutor();
+
+    private final TasksExecutor tasksExecutor = new TasksExecutor();
 
     private SimpleStringProperty email = new SimpleStringProperty();
     private BooleanProperty userNotLoggedIn = new SimpleBooleanProperty(true);
@@ -45,6 +49,10 @@ public class ClientModel {
     private SimpleBooleanProperty serverLive = new SimpleBooleanProperty(false);
     private final ReentrantLock lock = new ReentrantLock();
     private String selectedEmailId;
+
+    private final Semaphore pool = new Semaphore(0);
+
+
     //
 
 
@@ -270,7 +278,7 @@ public class ClientModel {
         this.homeErrorMessage.set(homeErrorMessage);
     }
 
-    public ScheduledTasksExecutor getTasksExecutor() {
+    public TasksExecutor getTasksExecutor() {
         return tasksExecutor;
     }
 
@@ -284,5 +292,17 @@ public class ClientModel {
 
     public void setNewMessage(boolean newMessage) {
         this.newMessage.set(newMessage);
+    }
+
+    public boolean isTaskStarted() {
+        return taskStarted;
+    }
+
+    public void setTaskStarted(boolean taskStarted) {
+        this.taskStarted = taskStarted;
+    }
+
+    public Semaphore getPool() {
+        return pool;
     }
 }

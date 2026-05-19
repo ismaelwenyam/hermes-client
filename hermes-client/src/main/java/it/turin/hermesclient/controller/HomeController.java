@@ -2,10 +2,7 @@ package it.turin.hermesclient.controller;
 
 import it.turin.hermesclient.model.ClientModel;
 import it.turin.hermesclient.model.Email;
-import it.turin.hermesclient.tasks.Deletion;
-import it.turin.hermesclient.tasks.Ping;
-import it.turin.hermesclient.tasks.Pooling;
-import it.turin.hermesclient.tasks.ScheduledTasksExecutor;
+import it.turin.hermesclient.tasks.*;
 import it.turin.hermesclient.utils.SceneManager;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
@@ -102,7 +99,10 @@ public class HomeController extends ClientController {
     }
 
     private void startTasks () {
-        clientModel.getTasksExecutor().start(new Ping(clientModel, 8080), new Pooling(clientModel, 8080));
+        if (!clientModel.isTaskStarted()){
+            clientModel.getTasksExecutor().start(new Ping(clientModel, 8080), new Pooling(clientModel, 8080), new Count(clientModel, 8080));
+            clientModel.setTaskStarted(true);
+        }
     }
 
     public void onNewMessage(MouseEvent mouseEvent) {
@@ -192,6 +192,7 @@ public class HomeController extends ClientController {
         int p = Integer.parseInt(clientModel.getPage());
         if ((p + 1) >= clientModel.getSortedEmails().size() / nrElements) return;
         clientModel.setPage(String.valueOf(p + 1));
+        clientModel.getPool().release();
         updatePage();
     }
 

@@ -6,4 +6,5 @@ public enum Endpoint {
     DELETE_EMAIL,
     POST_EMAIL,
     PING,
+    COUNT
 }
