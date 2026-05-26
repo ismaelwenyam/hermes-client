@@ -51,7 +51,11 @@ public class HomeController extends ClientController {
         newMessageLabel.visibleProperty().bind(clientModel.newMessageProperty());
 
         //pooling execution result
-        emailList.setItems(clientModel.getSortedEmails());
+        int p = Integer.parseInt(clientModel.getPage());
+        int f = p * nrElements;
+        int t = Math.min(f + nrElements, clientModel.getSortedEmails().size());
+        emailList.setItems(FXCollections.observableArrayList(clientModel.getSortedEmails().subList(f, t)));
+
         clientModel.getEmails().addListener((javafx.collections.ListChangeListener<Email>) c -> {
             updatePage();
         });
