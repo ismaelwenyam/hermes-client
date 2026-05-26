@@ -41,6 +41,8 @@ public class Ping implements Runnable {
             Platform.runLater(() -> {
                 clientModel.updateServerStatus(false);
                 clientModel.setServerStatusColor(Color.RED);
+                clientModel.setErrorMessage("ping " + e.getMessage());
+                clientModel.setShowError(true);
             });
         }
     }

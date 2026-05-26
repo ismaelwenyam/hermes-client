@@ -46,8 +46,8 @@ public class HomeController extends ClientController {
         startTasks();
         loggedUser.textProperty().bind(clientModel.emailProperty());
         serverStatus.fillProperty().bind(clientModel.serverStatusColorProperty());
-        homeErrorLabel.textProperty().bind(clientModel.homeErrorMessageProperty());
-        homeErrorLabel.visibleProperty().bind(clientModel.homeShowErrorProperty());
+        homeErrorLabel.textProperty().bind(clientModel.errorMessageProperty());
+        homeErrorLabel.visibleProperty().bind(clientModel.showErrorProperty());
         newMessageLabel.visibleProperty().bind(clientModel.newMessageProperty());
 
         //pooling execution result
@@ -122,8 +122,8 @@ public class HomeController extends ClientController {
 
     public void onAnswer () {
         if (clientModel.getSelectedEmailId().trim().isEmpty()) {
-            clientModel.setHomeErrorMessage("Select the mail to which answer");
-            clientModel.setHomeShowError(true);
+            clientModel.setErrorMessage("Select the mail to which answer");
+            clientModel.setShowError(true);
             return;
         }
         clientModel.setArgument("RE: " + argument.getText());
@@ -137,8 +137,8 @@ public class HomeController extends ClientController {
 
     public void onAnswerAll () {
         if (clientModel.getSelectedEmailId().trim().isEmpty()) {
-            clientModel.setHomeErrorMessage("Select the mail to which answer all");
-            clientModel.setHomeShowError(true);
+            clientModel.setErrorMessage("Select the mail to which answer all");
+            clientModel.setShowError(true);
             return;
         }
         clientModel.setArgument("RE: " + argument.getText());
@@ -160,8 +160,8 @@ public class HomeController extends ClientController {
 
     public void onForward () {
         if (clientModel.getSelectedEmailId().trim().isEmpty()) {
-            clientModel.setHomeErrorMessage("Select the mail to forward");
-            clientModel.setHomeShowError(true);
+            clientModel.setErrorMessage("Select the mail to forward");
+            clientModel.setShowError(true);
             return;
         }
         clientModel.setArgument(argument.getText());
@@ -176,8 +176,8 @@ public class HomeController extends ClientController {
 
     public void onDelete () {
         if (clientModel.getSelectedEmailId().trim().isEmpty()) {
-            clientModel.setHomeErrorMessage("Select the mail to delete");
-            clientModel.setHomeShowError(true);
+            clientModel.setErrorMessage("Select the mail to delete");
+            clientModel.setShowError(true);
             return;
         }
         Thread deleteThread = new Thread(new Deletion(clientModel, 8080), "deletion-task");

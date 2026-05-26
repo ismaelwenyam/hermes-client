@@ -34,8 +34,6 @@ public class ClientModel {
     private final ObservableList<Email> emails = FXCollections.observableArrayList();
     private final SortedList<Email> sortedEmails = new SortedList<>(emails);
     private SimpleStringProperty page = new SimpleStringProperty("0");
-    private BooleanProperty homeShowError = new SimpleBooleanProperty(false);
-    private SimpleStringProperty homeErrorMessage = new SimpleStringProperty();
     private SimpleBooleanProperty newMessage = new SimpleBooleanProperty(false);
 
     public SimpleBooleanProperty serverLiveProperty() {
@@ -252,30 +250,6 @@ public class ClientModel {
 
     public void setSelectedEmailId(String selectedEmailId) {
         this.selectedEmailId = selectedEmailId;
-    }
-
-    public boolean isHomeShowError() {
-        return homeShowError.get();
-    }
-
-    public BooleanProperty homeShowErrorProperty() {
-        return homeShowError;
-    }
-
-    public void setHomeShowError(boolean homeShowError) {
-        this.homeShowError.set(homeShowError);
-    }
-
-    public String getHomeErrorMessage() {
-        return homeErrorMessage.get();
-    }
-
-    public SimpleStringProperty homeErrorMessageProperty() {
-        return homeErrorMessage;
-    }
-
-    public void setHomeErrorMessage(String homeErrorMessage) {
-        this.homeErrorMessage.set(homeErrorMessage);
     }
 
     public TasksExecutor getTasksExecutor() {
