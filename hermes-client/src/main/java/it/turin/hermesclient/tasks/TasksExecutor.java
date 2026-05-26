@@ -6,13 +6,13 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class TasksExecutor {
-    private final ScheduledExecutorService scheduledExecs = Executors.newScheduledThreadPool(2);
-    private final ExecutorService exec = Executors.newFixedThreadPool(1);
+    private final ScheduledExecutorService scheduledExecs = Executors.newScheduledThreadPool(1);
+    private final ExecutorService exec = Executors.newFixedThreadPool(2);
 
     public void start (Ping ping,Pooling pooling, Count count) {
-        scheduledExecs.scheduleAtFixedRate(ping, 0, 2, TimeUnit.SECONDS);
-        scheduledExecs.scheduleAtFixedRate(count, 0, 10, TimeUnit.SECONDS);
+        scheduledExecs.scheduleAtFixedRate(ping, 0, 5, TimeUnit.SECONDS);
         exec.execute(pooling);
+        exec.execute(count);
     }
 
     public void shutdown () {
