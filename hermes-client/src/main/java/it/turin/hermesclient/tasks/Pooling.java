@@ -1,5 +1,6 @@
 package it.turin.hermesclient.tasks;
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 import it.turin.hermesclient.dto.EmailWrapper;
 import it.turin.hermesclient.dto.Endpoint;
@@ -43,7 +44,7 @@ public class Pooling implements Runnable {
             System.out.println("pool-t2");
             Map<String, Object> requestParams = new HashMap<>();
             requestParams.put("account", clientModel.getEmail());
-            requestParams.put("page", clientModel.getPage());
+            requestParams.put("page", String.valueOf(clientModel.getPage()));
             Request<Email> request = new Request<>(Endpoint.GET_EMAILS, requestParams, null);
             String jsonRequest = gson.toJson(request);
             String jsonResponse;
@@ -62,7 +63,16 @@ public class Pooling implements Runnable {
             }
             System.out.println("received response: " + jsonResponse);
             Type type = new TypeToken<Response<EmailWrapper>>() {}.getType();
-            Response<EmailWrapper> response = gson.fromJson(jsonResponse, type);
+            Response<EmailWrapper> response = null;
+            try {
+                response = gson.fromJson(jsonResponse, type);
+            } catch (JsonSyntaxException e) {
+                Platform.runLater(() -> {
+                    clientModel.setErrorMessage(e.getMessage());
+                    clientModel.setShowError(true);
+                });
+                return;
+            }
             if (response == null) {
                 System.out.println("failed to parse response");
                 return;
@@ -75,12 +85,6 @@ public class Pooling implements Runnable {
                     for (Email mail : emails) {
                         clientModel.addEmail(mail);
                     }
-                    Platform.runLater(() -> {
-                        if (Long.parseLong(clientModel.getEmailsCount()) < emailWrapper.getEmailsCount()) {
-                            clientModel.setNewMessage(true);
-                        }
-                        clientModel.setEmailsCount(String.valueOf(emailWrapper.getEmailsCount()));
-                    });
                 }
             } else if (response.getStatusCode() == 404) {
                 System.out.println("no emails found");
