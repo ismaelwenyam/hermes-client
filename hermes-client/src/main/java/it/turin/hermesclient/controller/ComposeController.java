@@ -47,6 +47,9 @@ public class ComposeController extends ClientController {
     public void onCancel(MouseEvent mouseEvent) {
         clientModel.setShowError(false);
         clientModel.setErrorMessage("");
+        clientModel.setArgument("");
+        clientModel.setArgument("");
+        clientModel.setTextBody("");
         try {
             SceneManager.switchScene("home-view.fxml", clientModel);
         } catch (IOException e) {
