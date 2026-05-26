@@ -32,6 +32,7 @@ public class Ping implements Runnable {
         String jsonRequest = gson.toJson(request);
         try {
             ServerConnection.sendRequest(jsonRequest, InetAddress.getLocalHost().getHostAddress(), port);
+            clientModel.getCountingSem().release();
             Platform.runLater(() -> {
                 clientModel.updateServerStatus(true);
                 clientModel.setServerStatusColor(Color.GREEN);

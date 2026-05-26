@@ -8,7 +8,6 @@ import javafx.collections.ObservableList;
 import javafx.collections.transformation.SortedList;
 import javafx.scene.paint.Color;
 
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -48,7 +47,8 @@ public class ClientModel {
     private final ReentrantLock lock = new ReentrantLock();
     private String selectedEmailId;
 
-    private final Semaphore pool = new Semaphore(0);
+    private final Semaphore poolingSem = new Semaphore(0);
+    private final Semaphore countingSem = new Semaphore(0);
 
 
     //
@@ -276,7 +276,11 @@ public class ClientModel {
         this.taskStarted = taskStarted;
     }
 
-    public Semaphore getPool() {
-        return pool;
+    public Semaphore getPoolingSem() {
+        return poolingSem;
+    }
+
+    public Semaphore getCountingSem() {
+        return countingSem;
     }
 }

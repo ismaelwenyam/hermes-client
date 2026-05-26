@@ -35,7 +35,7 @@ public class Pooling implements Runnable {
         while (true) {
             System.out.println("pooling...");
             try {
-                clientModel.getPool().acquire();
+                clientModel.getPoolingSem().acquire();
             } catch (InterruptedException e) {
                 System.err.println("exeception occured in pooling: " + e.getMessage() + " " + e);
                 return;
