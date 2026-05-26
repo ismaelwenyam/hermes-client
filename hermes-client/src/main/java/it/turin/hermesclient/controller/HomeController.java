@@ -5,17 +5,13 @@ import it.turin.hermesclient.model.Email;
 import it.turin.hermesclient.tasks.*;
 import it.turin.hermesclient.utils.SceneManager;
 import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 
 import java.io.IOException;
-import java.util.Comparator;
-import java.util.List;
 
 public class HomeController extends ClientController {
     private ClientModel clientModel;
@@ -196,7 +192,7 @@ public class HomeController extends ClientController {
         int p = Integer.parseInt(clientModel.getPage());
         if ((p + 1) >= clientModel.getSortedEmails().size() / nrElements) return;
         clientModel.setPage(String.valueOf(p + 1));
-        clientModel.getPool().release();
+        clientModel.getPoolingSem().release();
         updatePage();
     }
 
