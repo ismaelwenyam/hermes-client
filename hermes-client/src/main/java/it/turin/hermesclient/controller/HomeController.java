@@ -47,7 +47,7 @@ public class HomeController extends ClientController {
         newMessageLabel.visibleProperty().bind(clientModel.newMessageProperty());
 
         //pooling execution result
-        int p = Integer.parseInt(clientModel.getPage());
+        int p = clientModel.getPage();
         int f = p * nrElements;
         int t = Math.min(f + nrElements, clientModel.getSortedEmails().size());
         emailList.setItems(FXCollections.observableArrayList(clientModel.getSortedEmails().subList(f, t)));
@@ -56,7 +56,7 @@ public class HomeController extends ClientController {
             updatePage();
         });
         totalMails.textProperty().bind(clientModel.emailsCountProperty());
-        page.textProperty().bind(clientModel.pageProperty());
+        page.textProperty().bind(clientModel.pageGuiProperty());
         emailList.setCellFactory(param -> new ListCell<>() {
 
             @Override
@@ -117,7 +117,7 @@ public class HomeController extends ClientController {
     }
 
     public void onAnswer () {
-        if (clientModel.getSelectedEmailId().trim().isEmpty()) {
+        if (clientModel.getSelectedEmailId() == null || clientModel.getSelectedEmailId().trim().isEmpty()) {
             clientModel.setErrorMessage("Select the mail to which answer");
             clientModel.setShowError(true);
             return;
@@ -132,7 +132,7 @@ public class HomeController extends ClientController {
     }
 
     public void onAnswerAll () {
-        if (clientModel.getSelectedEmailId().trim().isEmpty()) {
+        if (clientModel.getSelectedEmailId() == null || clientModel.getSelectedEmailId().trim().isEmpty()) {
             clientModel.setErrorMessage("Select the mail to which answer all");
             clientModel.setShowError(true);
             return;
@@ -155,7 +155,7 @@ public class HomeController extends ClientController {
     }
 
     public void onForward () {
-        if (clientModel.getSelectedEmailId().trim().isEmpty()) {
+        if (clientModel.getSelectedEmailId() == null || clientModel.getSelectedEmailId().trim().isEmpty()) {
             clientModel.setErrorMessage("Select the mail to forward");
             clientModel.setShowError(true);
             return;
@@ -171,7 +171,7 @@ public class HomeController extends ClientController {
     }
 
     public void onDelete () {
-        if (clientModel.getSelectedEmailId().trim().isEmpty()) {
+        if (clientModel.getSelectedEmailId() == null || clientModel.getSelectedEmailId().trim().isEmpty()) {
             clientModel.setErrorMessage("Select the mail to delete");
             clientModel.setShowError(true);
             return;
@@ -181,24 +181,29 @@ public class HomeController extends ClientController {
     }
 
     public void onPrevious(MouseEvent mouseEvent) {
-        int p = Integer.parseInt(clientModel.getPage());
-        if (p - 1 >= 0) {
-            clientModel.setPage(String.valueOf(p - 1));
-            updatePage();
-        }
+        int pageGui = Integer.parseInt(clientModel.getPageGui());
+        if (pageGui <= 1) return;
+        pageGui -= 1;
+        clientModel.setPage(clientModel.getPage() - 1);
+        clientModel.setPageGui(String.valueOf(pageGui));
+        updatePage();
+
     }
 
     public void onNext(MouseEvent mouseEvent) {
-        int p = Integer.parseInt(clientModel.getPage());
-        if ((p + 1) >= clientModel.getSortedEmails().size() / nrElements) return;
-        clientModel.setPage(String.valueOf(p + 1));
+        System.out.println("page_gui: " + clientModel.getPageGui() + " - page: " + clientModel.getPage());
+        int pageGui = Integer.parseInt(clientModel.getPageGui());
+        if (pageGui >= (double) Integer.parseInt(clientModel.getEmailsCount()) / nrElements) return;
+        pageGui += 1;
+        clientModel.setPage(clientModel.getPage() + 1);
+        clientModel.setPageGui(String.valueOf(pageGui));
+        System.out.println("page_gui: " + clientModel.getPageGui() + " - page: " + clientModel.getPage());
         clientModel.getPoolingSem().release();
         updatePage();
     }
 
     private void updatePage() {
-        int page = Integer.parseInt(clientModel.getPage());
-        int from = page * nrElements;
+        int from = clientModel.getPage() * nrElements;
         int to = Math.min(from + nrElements, clientModel.getSortedEmails().size());
         emailList.setItems(
                 FXCollections.observableArrayList(

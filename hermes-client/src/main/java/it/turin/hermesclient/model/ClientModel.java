@@ -32,7 +32,8 @@ public class ClientModel {
     //home
     private final ObservableList<Email> emails = FXCollections.observableArrayList();
     private final SortedList<Email> sortedEmails = new SortedList<>(emails);
-    private SimpleStringProperty page = new SimpleStringProperty("0");
+    private SimpleStringProperty pageGui = new SimpleStringProperty("1");
+    private int page = 0;
     private SimpleBooleanProperty newMessage = new SimpleBooleanProperty(false);
 
     public SimpleBooleanProperty serverLiveProperty() {
@@ -192,20 +193,6 @@ public class ClientModel {
         return sortedEmails;
     }
 
-
-
-    public String getPage() {
-        return page.get();
-    }
-
-    public SimpleStringProperty pageProperty() {
-        return page;
-    }
-
-    public void setPage(String page) {
-        this.page.set(page);
-    }
-
     public boolean isServerLive() {
         lock.lock();
         try {
@@ -282,5 +269,25 @@ public class ClientModel {
 
     public Semaphore getCountingSem() {
         return countingSem;
+    }
+
+    public String getPageGui() {
+        return pageGui.get();
+    }
+
+    public SimpleStringProperty pageGuiProperty() {
+        return pageGui;
+    }
+
+    public void setPageGui(String pageGui) {
+        this.pageGui.set(pageGui);
+    }
+
+    public int getPage() {
+        return page;
+    }
+
+    public void setPage(int page) {
+        this.page = page;
     }
 }
