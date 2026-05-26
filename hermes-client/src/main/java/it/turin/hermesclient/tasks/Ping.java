@@ -34,6 +34,7 @@ public class Ping implements Runnable {
             ServerConnection.sendRequest(jsonRequest, InetAddress.getLocalHost().getHostAddress(), port);
             clientModel.getCountingSem().release();
             Platform.runLater(() -> {
+                clientModel.setShowError(false);
                 clientModel.updateServerStatus(true);
                 clientModel.setServerStatusColor(Color.GREEN);
             });
