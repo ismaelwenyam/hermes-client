@@ -17,17 +17,30 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.List;
 
+/**
+ * Attivita' monouso che invia al server l'email preparata nel modello del client.
+ */
 public class Forwarding implements Runnable {
     private static final Gson gson = new Gson();
     private final ClientModel clientModel;
     private final int port;
 
+    /**
+     * Crea un'attivita' di inoltro.
+     *
+     * @param clientModel stato condiviso dell'applicazione
+     * @param port porta del server
+     */
     public Forwarding(ClientModel clientModel, int port) {
         this.clientModel = clientModel;
         this.port = port;
     }
 
 
+    /**
+     * Invia l'email preparata e aggiorna lo stato della composizione in base
+     * alla risposta del server.
+     */
     @Override
     public void run() {
         //TODO if server is offline do something

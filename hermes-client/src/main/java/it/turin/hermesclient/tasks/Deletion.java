@@ -17,6 +17,10 @@ import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Attivita' monouso che elimina sul server l'email attualmente selezionata e la
+ * rimuove dalla casella locale quando l'operazione riesce.
+ */
 public class Deletion implements Runnable {
     private static final Gson gson = new Gson();
 
@@ -24,11 +28,21 @@ public class Deletion implements Runnable {
     private final int port;
 
 
+    /**
+     * Crea un'attivita' di eliminazione.
+     *
+     * @param clientModel stato condiviso dell'applicazione
+     * @param port porta del server
+     */
     public Deletion(ClientModel clientModel, int port) {
         this.clientModel = clientModel;
         this.port = port;
     }
 
+    /**
+     * Invia la richiesta di eliminazione per l'email selezionata e aggiorna il
+     * modello locale dopo una risposta positiva.
+     */
     @Override
     public void run() {
         System.out.println("start deletion task");

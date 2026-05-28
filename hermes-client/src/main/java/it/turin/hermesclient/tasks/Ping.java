@@ -14,16 +14,30 @@ import java.net.InetAddress;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Attivita' periodica che controlla la raggiungibilita' del server e aggiorna lo
+ * stato mostrato dall'interfaccia del client.
+ */
 public class Ping implements Runnable {
     private static final Gson gson = new Gson();
     private final ClientModel clientModel;
     private final int port;
 
+    /**
+     * Crea un'attivita' di ping.
+     *
+     * @param clientModel stato condiviso dell'applicazione
+     * @param port porta del server
+     */
     public Ping(ClientModel clientModel, int port) {
         this.clientModel = clientModel;
         this.port = port;
     }
 
+    /**
+     * Invia una richiesta di ping, aggiorna lo stato del server e risveglia il
+     * l'attivita' di conteggio quando il server e' raggiungibile.
+     */
     @Override
     public void run() {
         Map<String, Object> requestParams = new HashMap<>();

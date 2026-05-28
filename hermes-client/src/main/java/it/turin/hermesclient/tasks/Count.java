@@ -15,16 +15,33 @@ import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Attivita' in background che richiede il numero totale di email per l'account
+ * connesso.
+ * <p>
+ * L'attivita' attende sul semaforo di conteggio e di solito viene rilasciata dopo
+ * un ping riuscito.
+ */
 public class Count implements Runnable {
     private static final Gson gson = new Gson();
     private final ClientModel clientModel;
     private final int port;
 
+    /**
+     * Crea un'attivita' di conteggio.
+     *
+     * @param clientModel stato condiviso dell'applicazione
+     * @param port porta del server
+     */
     public Count (ClientModel clientModel, int port) {
         this.clientModel = clientModel;
         this.port = port;
     }
 
+    /**
+     * Attende richieste di conteggio, le invia al server e aggiorna il modello
+     * con la dimensione piu' recente della casella di posta.
+     */
     @Override
     public void run() {
         System.out.println("start count");

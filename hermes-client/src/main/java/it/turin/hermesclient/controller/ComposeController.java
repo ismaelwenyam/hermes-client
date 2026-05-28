@@ -19,6 +19,12 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * Controller della vista di composizione delle email.
+ * <p>
+ * Collega il form di composizione al {@link ClientModel} condiviso, valida i
+ * destinatari e avvia l'attivita' di inoltro quando l'utente invia un'email.
+ */
 public class ComposeController extends ClientController {
     private ClientModel clientModel;
 
@@ -28,6 +34,11 @@ public class ComposeController extends ClientController {
     @FXML public Label errorLabel;
     @FXML public Circle serverStatus;
 
+    /**
+     * Collega i controlli della vista di composizione al modello condiviso.
+     *
+     * @param clientModel stato condiviso dell'applicazione
+     */
     public void init (ClientModel clientModel) {
         this.clientModel = clientModel;
         argumentTxtField.textProperty().bindBidirectional(clientModel.argumentProperty());
@@ -39,11 +50,20 @@ public class ComposeController extends ClientController {
         serverStatus.fillProperty().bind(clientModel.serverStatusColorProperty());
     }
 
+    /**
+     * Arresta le attivita' in background gestite dal modello del client.
+     */
     @Override
     public void shutdown() {
         clientModel.getTasksExecutor().shutdown();
     }
 
+    /**
+     * Annulla la composizione, pulisce lo stato temporaneo e ritorna alla vista
+     * principale.
+     *
+     * @param mouseEvent evento di click che ha attivato l'annullamento
+     */
     public void onCancel(MouseEvent mouseEvent) {
         clientModel.setShowError(false);
         clientModel.setErrorMessage("");
@@ -57,6 +77,12 @@ public class ComposeController extends ClientController {
         }
     }
 
+    /**
+     * Valida il form di composizione e invia l'email corrente se l'input e'
+     * accettabile.
+     *
+     * @param mouseEvent evento di click che ha attivato l'invio
+     */
     public void onSend(MouseEvent mouseEvent) {
         if (recipientsTxtField.getText().trim().isEmpty()){
             clientModel.setErrorMessage("Nessun destinatario inserito");
@@ -79,15 +105,28 @@ public class ComposeController extends ClientController {
         send();
     }
 
+    /**
+     * Avvia l'attivita' asincrona che invia al server l'email composta.
+     */
     private void send () {
         Thread sendThread = new Thread(new Forwarding(clientModel, 8080), "forwarding");
         sendThread.start();
     }
 
+    /**
+     * Nasconde il messaggio di errore quando l'utente modifica il form.
+     *
+     * @param keyEvent evento da tastiera emesso dal controllo modificato
+     */
     public void onKeyPressedHideErrorLbl(KeyEvent keyEvent) {
         clientModel.setShowError(false);
     }
 
+    /**
+     * Pulisce tutti i campi modificabili del form di composizione.
+     *
+     * @param mouseEvent evento di click che ha attivato il reset
+     */
     public void onReset(MouseEvent mouseEvent) {
         argumentTxtField.clear();
         recipientsTxtField.clear();

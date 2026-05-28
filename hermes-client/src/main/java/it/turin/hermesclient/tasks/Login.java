@@ -13,15 +13,31 @@ import java.net.InetAddress;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Attivita' JavaFX che verifica se l'email memorizzata nel modello esiste sul
+ * server.
+ */
 public class Login extends Task<Boolean> {
     private final ClientModel clientModel;
     private final int port;
 
+    /**
+     * Crea un'attivita' di login.
+     *
+     * @param clientModel stato condiviso dell'applicazione
+     * @param port porta del server
+     */
     public Login(ClientModel clientModel, int port) {
         this.clientModel = clientModel;
         this.port = port;
     }
 
+    /**
+     * Invia la richiesta di login e restituisce se il server ha accettato
+     * l'account.
+     *
+     * @return {@code true} se l'account esiste
+     */
     @Override
     public Boolean call () {
         System.out.println("start login task");

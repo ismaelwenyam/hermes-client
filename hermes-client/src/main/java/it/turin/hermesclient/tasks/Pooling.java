@@ -20,16 +20,32 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Attivita' in background che recupera pagine di email per l'account connesso.
+ * <p>
+ * L'attivita' attende sul semaforo di pooling e aggiunge al modello condiviso le
+ * email appena ricevute.
+ */
 public class Pooling implements Runnable {
     private static final Gson gson = new Gson();
     private final ClientModel clientModel;
     private final int port;
 
+    /**
+     * Crea un'attivita' di pooling.
+     *
+     * @param clientModel stato condiviso dell'applicazione
+     * @param port porta del server
+     */
     public Pooling(ClientModel clientModel, int port) {
         this.clientModel = clientModel;
         this.port = port;
     }
 
+    /**
+     * Attende richieste di pooling, recupera dal server la pagina corrente e
+     * aggiorna la casella di posta locale.
+     */
     @Override
     public void run() {
         System.out.println("start pooling");
