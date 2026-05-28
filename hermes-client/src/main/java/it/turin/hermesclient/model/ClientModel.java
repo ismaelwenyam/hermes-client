@@ -19,39 +19,30 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class ClientModel {
     private boolean taskStarted = false;
-
-
     private final TasksExecutor tasksExecutor = new TasksExecutor();
 
     private SimpleStringProperty email = new SimpleStringProperty();
     private BooleanProperty showError = new SimpleBooleanProperty(false);
     private SimpleStringProperty errorMessage = new SimpleStringProperty();
     private ObjectProperty<Color> serverStatusColor = new SimpleObjectProperty<>(Color.RED);
-    private SimpleStringProperty argument = new SimpleStringProperty("");
-    private SimpleStringProperty recipients = new SimpleStringProperty("");
+    private SimpleBooleanProperty serverLive = new SimpleBooleanProperty(false);
+    private final Semaphore poolingSem = new Semaphore(0);
+    private final Semaphore countingSem = new Semaphore(0);
+    private final ReentrantLock lock = new ReentrantLock();
 
-
-    private SimpleStringProperty emailsCount = new SimpleStringProperty("0");
 
     //home
+    private SimpleStringProperty emailsCount = new SimpleStringProperty("0");
     private final ObservableList<Email> emails = FXCollections.observableArrayList();
     private final SortedList<Email> sortedEmails = new SortedList<>(emails);
     private SimpleStringProperty pageGui = new SimpleStringProperty("1");
     private int page = 0;
     private SimpleBooleanProperty newMessage = new SimpleBooleanProperty(false);
-
-    private SimpleBooleanProperty serverLive = new SimpleBooleanProperty(false);
-    private final ReentrantLock lock = new ReentrantLock();
     private String selectedEmailId;
 
-    private final Semaphore poolingSem = new Semaphore(0);
-    private final Semaphore countingSem = new Semaphore(0);
-
-
-    //
-
-
     //compose
+    private SimpleStringProperty argument = new SimpleStringProperty("");
+    private SimpleStringProperty recipients = new SimpleStringProperty("");
     private SimpleStringProperty textBody = new SimpleStringProperty("");
     private Email mail;
     //
