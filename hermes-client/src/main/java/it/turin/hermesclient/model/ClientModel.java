@@ -24,8 +24,6 @@ public class ClientModel {
     private final TasksExecutor tasksExecutor = new TasksExecutor();
 
     private SimpleStringProperty email = new SimpleStringProperty();
-    private BooleanProperty userNotLoggedIn = new SimpleBooleanProperty(true);
-    private BooleanProperty userLoggedIn = new SimpleBooleanProperty(true);
     private BooleanProperty showError = new SimpleBooleanProperty(false);
     private SimpleStringProperty errorMessage = new SimpleStringProperty();
     private ObjectProperty<Color> serverStatusColor = new SimpleObjectProperty<>(Color.RED);
@@ -86,27 +84,6 @@ public class ClientModel {
         this.email.set(email);
     }
 
-    public boolean getUserNotLoggedIn() {
-        return userNotLoggedIn.get();
-    }
-
-    public BooleanProperty userNotLoggedInProperty() {
-        return userNotLoggedIn;
-    }
-
-    public void setUserNotLoggedIn(boolean userNotLoggedIn) {
-        this.userNotLoggedIn.set(userNotLoggedIn);
-    }
-
-    /**
-     * Restituisce se la vista corrente deve mostrare un messaggio di errore.
-     *
-     * @return {@code true} se deve essere mostrato un errore
-     */
-    public boolean isShowError() {
-        return showError.get();
-    }
-
     /**
      * Restituisce la proprieta' che controlla la visibilita' dell'errore.
      *
@@ -126,15 +103,6 @@ public class ClientModel {
     }
 
     /**
-     * Restituisce il messaggio di errore corrente.
-     *
-     * @return testo dell'errore
-     */
-    public String getErrorMessage() {
-        return errorMessage.get();
-    }
-
-    /**
      * Restituisce la proprieta' che contiene il messaggio di errore corrente.
      *
      * @return proprieta' del messaggio di errore
@@ -150,28 +118,6 @@ public class ClientModel {
      */
     public void setErrorMessage(String errorMessage) {
         this.errorMessage.set(errorMessage);
-    }
-
-    public boolean isUserLoggedIn() {
-        return userLoggedIn.get();
-    }
-
-    public BooleanProperty userLoggedInProperty() {
-        return userLoggedIn;
-    }
-
-    public void setUserLoggedIn(boolean userLoggedIn) {
-        this.userLoggedIn.set(userLoggedIn);
-    }
-
-    /**
-     * Restituisce il colore usato dall'interfaccia per rappresentare lo stato
-     * del server.
-     *
-     * @return colore dello stato del server
-     */
-    public Color getServerStatusColor() {
-        return serverStatusColor.get();
     }
 
     /**
@@ -195,15 +141,6 @@ public class ClientModel {
     }
 
     /**
-     * Restituisce l'oggetto corrente della composizione.
-     *
-     * @return oggetto della composizione
-     */
-    public String getArgument() {
-        return argument.get();
-    }
-
-    /**
      * Restituisce la proprieta' che contiene l'oggetto della composizione.
      *
      * @return proprieta' dell'oggetto
@@ -219,16 +156,6 @@ public class ClientModel {
      */
     public void setArgument(String argument) {
         this.argument.set(argument);
-    }
-
-    /**
-     * Restituisce i destinatari della composizione come stringa separata da
-     * punto e virgola.
-     *
-     * @return testo dei destinatari
-     */
-    public String getRecipients() {
-        return recipients.get();
     }
 
     /**
@@ -327,21 +254,6 @@ public class ClientModel {
     }
 
     /**
-     * Restituisce in modo thread-safe l'ultimo stato noto di raggiungibilita'
-     * del server.
-     *
-     * @return {@code true} se il server e' considerato raggiungibile
-     */
-    public boolean isServerLive() {
-        lock.lock();
-        try {
-            return serverLive.get();
-        } finally {
-            lock.unlock();
-        }
-    }
-
-    /**
      * Aggiorna in modo thread-safe lo stato di raggiungibilita' del server.
      *
      * @param status nuovo stato di raggiungibilita' del server
@@ -353,34 +265,6 @@ public class ClientModel {
         } finally {
             lock.unlock();
         }
-    }
-
-    /**
-     * Restituisce la proprieta' che contiene lo stato di raggiungibilita' del
-     * server.
-     *
-     * @return proprieta' di raggiungibilita' del server
-     */
-    public SimpleBooleanProperty serverLiveProperty() {
-        return serverLive;
-    }
-
-    /**
-     * Imposta lo stato di raggiungibilita' del server.
-     *
-     * @param serverLive stato di raggiungibilita' del server
-     */
-    public void setServerLive(boolean serverLive) {
-        this.serverLive.set(serverLive);
-    }
-
-    /**
-     * Restituisce il corpo corrente della composizione.
-     *
-     * @return testo del corpo della composizione
-     */
-    public String getTextBody() {
-        return textBody.get();
     }
 
     /**
@@ -444,15 +328,6 @@ public class ClientModel {
      */
     public TasksExecutor getTasksExecutor() {
         return tasksExecutor;
-    }
-
-    /**
-     * Restituisce se deve essere mostrata una notifica di nuovo messaggio.
-     *
-     * @return {@code true} quando e' disponibile nuova posta
-     */
-    public boolean isNewMessage() {
-        return newMessage.get();
     }
 
     /**
