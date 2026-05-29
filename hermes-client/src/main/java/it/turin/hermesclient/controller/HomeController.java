@@ -4,8 +4,12 @@ import it.turin.hermesclient.model.ClientModel;
 import it.turin.hermesclient.model.Email;
 import it.turin.hermesclient.tasks.*;
 import it.turin.hermesclient.utils.SceneManager;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.geometry.Side;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
@@ -38,6 +42,7 @@ public class HomeController extends ClientController {
     @FXML public Circle serverStatus;
     @FXML public Label page;
     @FXML public Label totalMails;
+    @FXML public MenuButton elemsXPage;
 
     @FXML  public Label homeErrorLabel;
     @FXML public Label newMessageLabel;
@@ -70,8 +75,19 @@ public class HomeController extends ClientController {
         });
         totalMails.textProperty().bind(clientModel.emailsCountProperty());
         page.textProperty().bind(clientModel.pageGuiProperty());
+        elemsXPage.setPopupSide(Side.TOP);
+        elemsXPage.getItems().forEach(mi -> {
+            mi.setOnAction(event -> {
+                elemsXPage.setText(mi.getText());
+            });
+        });
+        elemsXPage.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue.equalsIgnoreCase(oldValue)) {
+                nrElements = Integer.parseInt(newValue);
+                updatePage();
+            }
+        });
         emailList.setCellFactory(param -> new ListCell<>() {
-
             @Override
             protected void updateItem(Email mail, boolean empty) {
                 super.updateItem(mail, empty);
@@ -258,12 +274,32 @@ public class HomeController extends ClientController {
      * in base alla pagina corrente.
      */
     private void updatePage() {
-        int from = clientModel.getPage() * nrElements;
-        int to = Math.min(from + nrElements, clientModel.getSortedEmails().size());
-        emailList.setItems(
-                FXCollections.observableArrayList(
-                        clientModel.getSortedEmails().subList(from, to)
-                )
-        );
+        new Thread(() -> {
+            // se nrElements maggiore del numero di elementi presenti nella pagina corrente
+            // visualizzare la prima pagina che contiene nrElements
+            int from = Math.min(clientModel.getPage() * nrElements, clientModel.getSortedEmails().size());
+            int to = Math.min(from + nrElements, clientModel.getSortedEmails().size());
+            // TODO potrebbe bloccare la view usendo su thread java fx
+            boolean empty = true;
+            while (empty) {
+                if (clientModel.getSortedEmails().subList(from, to).isEmpty()) {
+                    from--;
+                    int pageUi = (int) Math.ceil((double) clientModel.getSortedEmails().size() / nrElements);
+                    clientModel.setPage(pageUi-1);
+                    Platform.runLater(() -> {
+                        clientModel.setPageGui(String.valueOf(pageUi));
+                    });
+                }
+                else empty = false;
+            }
+            int finalFrom = from;
+            Platform.runLater(() -> {
+                emailList.setItems(
+                        FXCollections.observableArrayList(
+                                clientModel.getSortedEmails().subList(finalFrom, to)
+                        )
+                );
+            });
+        }).start();
     }
 }

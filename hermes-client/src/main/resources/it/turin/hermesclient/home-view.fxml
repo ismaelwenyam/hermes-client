@@ -93,14 +93,21 @@
    <bottom>
       <HBox prefHeight="30.0" prefWidth="678.0" spacing="15.0" BorderPane.alignment="CENTER">
          <children>
-            <Label fx:id="page" prefHeight="31.0" prefWidth="43.0" text="page: 0" />
+            <Label fx:id="page" prefHeight="31.0" prefWidth="43.0" text="page" />
             <Label fx:id="totalMails" prefHeight="33.0" prefWidth="34.0" text="20" />
             <Button mnemonicParsing="false" onMouseClicked="#onPrevious" text="&lt;" />
             <Button mnemonicParsing="false" onMouseClicked="#onNext" text="&gt;" />
-            <Label fx:id="homeErrorLabel" alignment="CENTER" prefHeight="30.0" prefWidth="462.0" style="-fx-background-color: red;" text="Label" textFill="WHITE" />
+            <MenuButton fx:id="elemsXPage" mnemonicParsing="false" text="3">
+              <items>
+                <MenuItem mnemonicParsing="false" text="3" />
+                <MenuItem mnemonicParsing="false" text="5" />
+                  <MenuItem mnemonicParsing="false" text="10" />
+              </items>
+            </MenuButton>
+            <Label fx:id="homeErrorLabel" alignment="CENTER" prefHeight="30.0" prefWidth="436.0" style="-fx-background-color: red;" text="Label" textFill="WHITE" />
          </children>
          <BorderPane.margin>
-            <Insets left="15.0" />
+            <Insets />
          </BorderPane.margin>
       </HBox>
    </bottom>
