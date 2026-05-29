@@ -21,6 +21,7 @@ public class ClientModel {
     private boolean taskStarted = false;
     private final TasksExecutor tasksExecutor = new TasksExecutor();
 
+    //client
     private SimpleStringProperty email = new SimpleStringProperty();
     private BooleanProperty showError = new SimpleBooleanProperty(false);
     private SimpleStringProperty errorMessage = new SimpleStringProperty();
