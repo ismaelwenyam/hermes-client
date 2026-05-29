@@ -8,6 +8,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import java.io.IOException;
 
@@ -47,13 +48,26 @@ public class LoginController extends ClientController {
     }
 
     /**
-     * Gestisce il click sul pulsante di login, validando l'email prima di
-     * contattare il server.
+     * Gestisce il click sul pulsante di login
      *
      * @param mouseEvent evento di click che ha attivato il tentativo di login
      */
     public void onLoginButton(MouseEvent mouseEvent) {
         loginButton.setVisible(false);
+        validateAndLogUser();
+    }
+
+    /**
+     * Gestisce l'evento in cui viene premuto il pulsante enter.
+     * @param keyEvent evento di press che ha attivato il tentativo di login
+     * */
+    public void onEnterPressed(KeyEvent keyEvent) {
+        if (!keyEvent.getCode().getName().equalsIgnoreCase("enter")) return;
+        loginButton.setVisible(false);
+        validateAndLogUser();
+    }
+
+    private void validateAndLogUser() {
         if (!EmailValidator.isValid(emailField.getText().trim())) {
             errorLabel.setText("Email not valid");
             errorLabel.setVisible(true);
@@ -62,6 +76,7 @@ public class LoginController extends ClientController {
         else
             logUser();
     }
+
 
     /**
      * Crea e avvia l'attivita' di login, poi passa alla vista principale in caso di
