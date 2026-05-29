@@ -279,7 +279,6 @@ public class HomeController extends ClientController {
             // visualizzare la prima pagina che contiene nrElements
             int from = Math.min(clientModel.getPage() * nrElements, clientModel.getSortedEmails().size());
             int to = Math.min(from + nrElements, clientModel.getSortedEmails().size());
-            // TODO potrebbe bloccare la view usendo su thread java fx
             boolean empty = true;
             while (empty) {
                 if (clientModel.getSortedEmails().subList(from, to).isEmpty()) {
