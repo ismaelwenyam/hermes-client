@@ -91,8 +91,10 @@ public class HomeController extends ClientController {
             @Override
             protected void updateItem(Email mail, boolean empty) {
                 super.updateItem(mail, empty);
-                if (empty || mail == null || mail.getArgument() == null) {
+                if (empty) {
                     setText("");
+                } else if (mail == null || mail.getArgument() == null)  {
+                    setText("no argument");
                 } else {
                     setText(mail.getArgument());
                 }
@@ -212,7 +214,7 @@ public class HomeController extends ClientController {
             clientModel.setShowError(true);
             return;
         }
-        clientModel.setArgument(argument.getText());
+        clientModel.setArgument("FWD: " + argument.getText());
         clientModel.setTextBody(mailArea.getText());
         clientModel.setRecipients("");
         try {
