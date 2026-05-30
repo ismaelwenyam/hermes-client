@@ -39,18 +39,4 @@ public class ServerConnection {
             return jsonResponse;
         }
     }
-
-    /**
-     * Verifica se una connessione socket puo' essere stabilita entro il timeout.
-     *
-     * @param host host del server
-     * @param port porta del server
-     * @param timeout timeout di connessione in millisecondi
-     * @throws IOException se il server non puo' essere raggiunto
-     */
-    public static void ping (String host, int port, int timeout) throws IOException {
-        try (Socket socket = new Socket()) {
-            socket.connect(new InetSocketAddress(host, port), timeout);
-        }
-    }
 }
