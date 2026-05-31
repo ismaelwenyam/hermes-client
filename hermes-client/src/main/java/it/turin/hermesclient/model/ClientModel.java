@@ -333,6 +333,15 @@ public class ClientModel {
     }
 
     /**
+     * Restituisce se e' disponibile una nuova email da segnalare.
+     *
+     * @return {@code true} quando la notifica di nuovo messaggio e' attiva
+     */
+    public boolean isNewMessage() {
+        return newMessage.get();
+    }
+
+    /**
      * Imposta se deve essere mostrata una notifica di nuovo messaggio.
      *
      * @param newMessage {@code true} quando e' disponibile nuova posta

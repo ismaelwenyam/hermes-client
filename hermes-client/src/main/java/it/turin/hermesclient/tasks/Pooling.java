@@ -97,6 +97,10 @@ public class Pooling implements Runnable {
                 EmailWrapper emailWrapper = response.getResponseBody();
 
                 if (emailWrapper != null && emailWrapper.getEmails() != null) {
+                    if (emailWrapper.isNewMessage()) System.out.println("there is a new message");
+                    Platform.runLater(() -> {
+                        clientModel.setNewMessage(emailWrapper.isNewMessage());
+                    });
                     List<Email> emails = emailWrapper.getEmails();
                     for (Email mail : emails) {
                         clientModel.addEmail(mail);

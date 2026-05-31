@@ -83,9 +83,6 @@ public class Count implements Runnable {
                 Number n = (Number) response.getResponseBody();
                 long newCount = n.longValue();
                 Platform.runLater(() -> {
-                    if (Long.parseLong(clientModel.getEmailsCount()) < newCount) {
-                        clientModel.setNewMessage(true);
-                    }
                     clientModel.setEmailsCount(String.valueOf(newCount));
                 });
                 if (newCount > Long.parseLong(clientModel.getEmailsCount())){

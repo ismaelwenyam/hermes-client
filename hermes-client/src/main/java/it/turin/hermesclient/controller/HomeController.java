@@ -101,7 +101,6 @@ public class HomeController extends ClientController {
             }
         });
         emailList.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            clientModel.setNewMessage(false);
             if (newValue != null) {
                 clientModel.setSelectedEmailId(String.valueOf(newValue.getID()));
                 argument.setText(newValue.getArgument());
@@ -113,6 +112,7 @@ public class HomeController extends ClientController {
                 to.setText(recipients);
                 sentDate.setText(newValue.getSentDate().toString());
                 mailArea.setText(newValue.getMailBody());
+                acknowledgeNewestMail(newValue);
             } else {
                 clientModel.setSelectedEmailId("");
                 argument.setText("");
@@ -122,6 +122,24 @@ public class HomeController extends ClientController {
                 mailArea.setText("");
             }
         });
+    }
+
+    /**
+     * Spegne la notifica solo quando l'utente apre la mail piu' recente
+     * visibile nella lista corrente.
+     *
+     * @param selectedEmail email appena selezionata
+     */
+    private void acknowledgeNewestMail(Email selectedEmail) {
+        if (!clientModel.isNewMessage()) {
+            return;
+        }
+        if (selectedEmail == null) {
+            return;
+        }
+        if (!emailList.getItems().isEmpty() && emailList.getItems().get(0).equals(selectedEmail)) {
+            clientModel.setNewMessage(false);
+        }
     }
 
     /**
