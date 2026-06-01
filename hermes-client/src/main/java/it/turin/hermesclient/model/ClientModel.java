@@ -37,7 +37,7 @@ public class ClientModel {
     private final ObservableList<Email> emails = FXCollections.observableArrayList();
     private final SortedList<Email> sortedEmails = new SortedList<>(emails);
     private SimpleStringProperty pageGui = new SimpleStringProperty("1");
-    private int page = 0;
+    private int serverPage = 0;
     private SimpleBooleanProperty newMessage = new SimpleBooleanProperty(false);
     private String selectedEmailId;
     private boolean fetchNewMail = false;
@@ -415,17 +415,33 @@ public class ClientModel {
      *
      * @return indice di pagina a base zero
      */
-    public int getPage() {
-        return page;
+    public int getServerPage() {
+        return serverPage;
     }
 
     /**
      * Imposta l'indice di pagina a base zero usato per le richieste al server.
      *
-     * @param page indice di pagina a base zero
+     * @param serverPage indice di pagina a base zero
      */
+    public void setServerPage(int serverPage) {
+        this.serverPage = serverPage;
+    }
+
+    /**
+     * @deprecated usa {@link #getServerPage()}.
+     */
+    @Deprecated
+    public int getPage() {
+        return getServerPage();
+    }
+
+    /**
+     * @deprecated usa {@link #setServerPage(int)}.
+     */
+    @Deprecated
     public void setPage(int page) {
-        this.page = page;
+        setServerPage(page);
     }
 
     public boolean isFetchNewMail() {

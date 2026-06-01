@@ -57,7 +57,7 @@ public class Pooling implements Runnable {
             }
             Map<String, Object> requestParams = new HashMap<>();
             requestParams.put("account", clientModel.getEmail());
-            requestParams.put("page", String.valueOf(clientModel.getPage()));
+            requestParams.put("page", String.valueOf(clientModel.getServerPage()));
             requestParams.put("newMail", String.valueOf(clientModel.isFetchNewMail()));
             clientModel.setFetchNewMail(false);
             Request<Email> request = new Request<>(Endpoint.GET_EMAILS, requestParams, null);

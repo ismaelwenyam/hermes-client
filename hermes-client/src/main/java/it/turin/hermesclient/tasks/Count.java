@@ -97,7 +97,7 @@ public class Count implements Runnable {
                 });
                 clientModel.setFetchNewMail(newMessage);
                 if (newCount > currentCount){
-                    clientModel.setPage(clientModel.getSortedEmails().size() / SERVER_PAGE_SIZE);
+                    clientModel.setServerPage(clientModel.getSortedEmails().size() / SERVER_PAGE_SIZE);
                     clientModel.getPoolingSem().release();
                 }
             } else {

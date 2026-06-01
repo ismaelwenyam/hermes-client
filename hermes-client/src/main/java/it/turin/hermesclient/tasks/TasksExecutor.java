@@ -21,10 +21,7 @@ public class TasksExecutor {
      * @param port porta di connessione
      */
     public void start (ClientModel clientModel, int port) {
-        scheduledExecs.scheduleAtFixedRate(
-                () -> new Thread(new Ping(clientModel, port), "ping").start(),
-                0, 10, TimeUnit.SECONDS
-        );
+        scheduledExecs.scheduleAtFixedRate(new Ping(clientModel, port), 0, 10, TimeUnit.SECONDS);
         exec.execute(new Pooling(clientModel, port));
         exec.execute(new Count(clientModel, port));
     }

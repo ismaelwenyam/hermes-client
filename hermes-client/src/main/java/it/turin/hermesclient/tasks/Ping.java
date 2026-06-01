@@ -7,12 +7,9 @@ import it.turin.hermesclient.model.ClientModel;
 import it.turin.hermesclient.model.Email;
 import it.turin.hermesclient.network.ServerConnection;
 import javafx.application.Platform;
-import javafx.concurrent.Task;
 import javafx.scene.paint.Color;
 
-import java.io.IOException;
 import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -20,7 +17,7 @@ import java.util.Map;
  * Attivita' periodica che controlla la raggiungibilita' del server e aggiorna lo
  * stato mostrato dall'interfaccia del client.
  */
-public class Ping extends Task<Void> {
+public class Ping implements Runnable {
     private static final Gson gson = new Gson();
     private final ClientModel clientModel;
     private final int port;
@@ -41,29 +38,29 @@ public class Ping extends Task<Void> {
      * l'attivita' di conteggio quando il server e' raggiungibile.
      */
     @Override
-    public Void call() throws Exception {
+    public void run() {
         System.out.println(Thread.currentThread().getName() + " - started");
         Map<String, Object> requestParams = new HashMap<>();
         requestParams.put("account", clientModel.getEmail());
         Request<Email> request = new Request<>(Endpoint.PING, requestParams, null);
         String jsonRequest = gson.toJson(request);
-        ServerConnection.sendRequest(jsonRequest, InetAddress.getLocalHost().getHostAddress(), port);
-        clientModel.getCountingSem().release();
+        try {
+            ServerConnection.sendRequest(jsonRequest, InetAddress.getLocalHost().getHostAddress(), port);
+            clientModel.getCountingSem().release();
+            Platform.runLater(() -> {
+                clientModel.setShowError(false);
+                clientModel.updateServerStatus(true);
+                clientModel.setServerStatusColor(Color.GREEN);
+            });
+        } catch (Exception e) {
+            System.err.println("ping failed: " + e.getMessage());
+            Platform.runLater(() -> {
+                clientModel.updateServerStatus(false);
+                clientModel.setServerStatusColor(Color.RED);
+                clientModel.setErrorMessage("ping " + e.getMessage());
+                clientModel.setShowError(true);
+            });
+        }
         System.out.println(Thread.currentThread().getName() + " - completed");
-        return null;
-    }
-
-    @Override
-    protected void succeeded() {
-        clientModel.setShowError(false);
-        clientModel.updateServerStatus(true);
-        clientModel.setServerStatusColor(Color.GREEN);
-    }
-
-    @Override
-    protected void failed() {
-        Throwable error = getException();
-        clientModel.setErrorMessage("error in ping: " + error);
-        clientModel.setShowError(true);
     }
 }

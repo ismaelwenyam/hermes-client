@@ -65,9 +65,8 @@ public class HomeController extends ClientController {
         homeErrorLabel.visibleProperty().bind(clientModel.showErrorProperty());
         newMessageLabel.visibleProperty().bind(clientModel.newMessageProperty());
 
-        //pooling execution result
-        int p = clientModel.getPage();
-        int f = p * nrElements;
+        int pageGui = Math.max(1, Integer.parseInt(clientModel.getPageGui()));
+        int f = (pageGui - 1) * nrElements;
         int t = Math.min(f + nrElements, clientModel.getSortedEmails().size());
         emailList.setItems(FXCollections.observableArrayList(clientModel.getSortedEmails().subList(f, t)));
 
@@ -282,11 +281,11 @@ public class HomeController extends ClientController {
      * @param mouseEvent evento di click che ha attivato la navigazione
      */
     public void onNext(MouseEvent mouseEvent) {
-        System.out.println("page_gui: " + clientModel.getPageGui() + " - page: " + clientModel.getPage());
+        System.out.println("page_gui: " + clientModel.getPageGui() + " - serverPage: " + clientModel.getServerPage());
         int pageGui = Integer.parseInt(clientModel.getPageGui());
         pageGui += 1;
         clientModel.setPageGui(String.valueOf(pageGui));
-        System.out.println("page_gui: " + clientModel.getPageGui() + " - page: " + clientModel.getPage());
+        System.out.println("page_gui: " + clientModel.getPageGui() + " - serverPage: " + clientModel.getServerPage());
         updatePage();
     }
 
@@ -309,7 +308,7 @@ public class HomeController extends ClientController {
 
             if (requestedEnd > loadedEmails) {
                 if (loadedEmails < totalEmails) {
-                    clientModel.setPage(loadedEmails / SERVER_PAGE_SIZE);
+                    clientModel.setServerPage(loadedEmails / SERVER_PAGE_SIZE);
                     clientModel.getPoolingSem().release();
                 } else {
                     int lastPageGui = Math.max(1, (int) Math.ceil((double) loadedEmails / nrElements));
