@@ -1,5 +1,7 @@
 package it.turin.hermesclient.tasks;
 
+import it.turin.hermesclient.model.ClientModel;
+
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -15,14 +17,16 @@ public class TasksExecutor {
     /**
      * Avvia il ping periodico e le attivita' di pooling e conteggio a lunga durata.
      *
-     * @param ping attivita' periodica di verifica della raggiungibilita' del server
-     * @param pooling attivita' di recupero della casella di posta
-     * @param count attivita' di conteggio della casella di posta
+     * @param clientModel modello generale del client
+     * @param port porta di connessione
      */
-    public void start (Ping ping,Pooling pooling, Count count) {
-        scheduledExecs.scheduleAtFixedRate(ping, 0, 10, TimeUnit.SECONDS);
-        exec.execute(pooling);
-        exec.execute(count);
+    public void start (ClientModel clientModel, int port) {
+        scheduledExecs.scheduleAtFixedRate(
+                () -> new Thread(new Ping(clientModel, port), "ping").start(),
+                0, 10, TimeUnit.SECONDS
+        );
+        exec.execute(new Pooling(clientModel, port));
+        exec.execute(new Count(clientModel, port));
     }
 
     /**

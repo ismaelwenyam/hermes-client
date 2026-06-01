@@ -161,7 +161,7 @@ public class HomeController extends ClientController {
      */
     private void startTasks () {
         if (!clientModel.isTaskStarted()){
-            clientModel.getTasksExecutor().start(new Ping(clientModel, 8080), new Pooling(clientModel, 8080), new Count(clientModel, 8080));
+            clientModel.getTasksExecutor().start(clientModel, 8080);
             clientModel.setTaskStarted(true);
         }
     }
