@@ -80,15 +80,6 @@ public class Deletion extends Task<Response<?>> {
     @Override
     protected void failed() {
         Throwable error = getException();
-        if (error instanceof UnknownHostException) {
-            System.err.println("unkown host exception in deletion: " + error.getMessage());
-            return;
-        }
-        if (error instanceof IOException) {
-            clientModel.setErrorMessage("server unavailable in deletion: " + error.getMessage());
-            clientModel.setShowError(true);
-            return;
-        }
         clientModel.setErrorMessage("error in deletion: " + error);
         clientModel.setShowError(true);
     }
