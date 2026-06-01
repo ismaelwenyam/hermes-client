@@ -5,9 +5,8 @@ import it.turin.hermesclient.dto.Endpoint;
 import it.turin.hermesclient.dto.Request;
 import it.turin.hermesclient.dto.Response;
 import it.turin.hermesclient.model.ClientModel;
-import it.turin.hermesclient.model.Email;
 import it.turin.hermesclient.network.ServerConnection;
-import javafx.application.Platform;
+import javafx.concurrent.Task;
 import javafx.scene.paint.Color;
 
 
@@ -21,11 +20,12 @@ import java.util.Map;
  * Attivita' monouso che elimina sul server l'email attualmente selezionata e la
  * rimuove dalla casella locale quando l'operazione riesce.
  */
-public class Deletion implements Runnable {
+public class Deletion extends Task<Response<?>> {
     private static final Gson gson = new Gson();
 
     private final ClientModel clientModel;
     private final int port;
+    private final String emailId;
 
 
     /**
@@ -37,6 +37,7 @@ public class Deletion implements Runnable {
     public Deletion(ClientModel clientModel, int port) {
         this.clientModel = clientModel;
         this.port = port;
+        this.emailId = clientModel.getSelectedEmailId();
     }
 
     /**
@@ -44,39 +45,51 @@ public class Deletion implements Runnable {
      * modello locale dopo una risposta positiva.
      */
     @Override
-    public void run() {
+    protected Response<?> call() throws Exception {
         System.out.println("start deletion task");
         Map<String, Object> requestParams = new HashMap<>();
         requestParams.put("account", clientModel.getEmail());
-        requestParams.put("emailId", clientModel.getSelectedEmailId());
+        requestParams.put("emailId", emailId);
         Request<?> request = new Request<>(Endpoint.DELETE_EMAIL, requestParams, null);
         String jsonRequest = gson.toJson(request);
-        String jsonResponse;
-        try {
-            jsonResponse = ServerConnection.sendRequest(jsonRequest, InetAddress.getLocalHost().getHostAddress(), port);
-        } catch (UnknownHostException e) {
-            System.err.println("unkown host exception in pooling: " + e.getMessage());
-            return;
-        } catch (IOException e) {
-            System.err.println("server unavailable in pooling: " + e.getMessage());
-            Platform.runLater(() -> {
-                clientModel.updateServerStatus(false);
-                clientModel.setServerStatusColor(Color.RED);
-            });
-            return;
-        }
+        String jsonResponse = ServerConnection.sendRequest(jsonRequest, InetAddress.getLocalHost().getHostAddress(), port);
         Response<?> response = gson.fromJson(jsonResponse, Response.class);
         if (response == null) {
             System.out.println("something went wrong in response from server");
-            return;
+            return null;
         }
         System.out.println("received response: " + response);
+        return response;
+    }
+
+    @Override
+    protected void succeeded() {
+        Response<?> response = getValue();
+        if (response == null) {
+            return;
+        }
         if (response.getStatusCode() == 200) {
-            clientModel.removeEmail(Long.parseLong(clientModel.getSelectedEmailId()));
+            clientModel.removeEmail(Long.parseLong(emailId));
         } else {
-            //TODO if couldn't delete, do something
-            System.out.println("something went wrong in response from server");
+            clientModel.setErrorMessage("something went wrong in response from server");
+            clientModel.setShowError(true);
         }
         System.out.println("end deletion task");
+    }
+
+    @Override
+    protected void failed() {
+        Throwable error = getException();
+        if (error instanceof UnknownHostException) {
+            System.err.println("unkown host exception in deletion: " + error.getMessage());
+            return;
+        }
+        if (error instanceof IOException) {
+            clientModel.setErrorMessage("server unavailable in deletion: " + error.getMessage());
+            clientModel.setShowError(true);
+            return;
+        }
+        clientModel.setErrorMessage("error in deletion: " + error);
+        clientModel.setShowError(true);
     }
 }

@@ -226,13 +226,7 @@ public class ClientModel {
      * @param id identificativo dell'email
      */
     public void removeEmail(long id) {
-        for (Email email : emails) {
-            if (email.getID() == id){
-                Platform.runLater(() -> {
-                    emails.remove(email);
-                });
-            }
-        }
+        emails.removeIf(email -> email.getID() == id);
 
     }
 
