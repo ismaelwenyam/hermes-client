@@ -20,7 +20,7 @@ public class TasksExecutor {
      * @param count attivita' di conteggio della casella di posta
      */
     public void start (Ping ping,Pooling pooling, Count count) {
-        scheduledExecs.scheduleAtFixedRate(ping, 0, 5, TimeUnit.SECONDS);
+        scheduledExecs.scheduleAtFixedRate(ping, 0, 10, TimeUnit.SECONDS);
         exec.execute(pooling);
         exec.execute(count);
     }
