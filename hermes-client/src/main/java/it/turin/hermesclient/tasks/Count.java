@@ -80,11 +80,20 @@ public class Count implements Runnable {
             }
             System.out.println("received count response: " + response);
             if (response.getStatusCode() == 200) {
-                Number n = (Number) response.getResponseBody();
-                long newCount = n.longValue();
+                String countResponse = (String) response.getResponseBody();
+                String[] results = countResponse.split(";");
+                if (results.length < 2) {
+                    System.err.println("something went wrong in counting");
+                    return;
+                }
+                long newCount = Long.parseLong(results[0]);
+                boolean newMessage = Boolean.parseBoolean(results[1]);
+
                 Platform.runLater(() -> {
                     clientModel.setEmailsCount(String.valueOf(newCount));
+                    if (newMessage) clientModel.setNewMessage(newMessage);
                 });
+                clientModel.setFetchNewMail(newMessage);
                 if (newCount > Long.parseLong(clientModel.getEmailsCount())){
                     clientModel.getPoolingSem().release();
                 }

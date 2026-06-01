@@ -48,19 +48,18 @@ public class Pooling implements Runnable {
      */
     @Override
     public void run() {
-        System.out.println("start pooling");
         while (true) {
-            System.out.println("pooling...");
             try {
                 clientModel.getPoolingSem().acquire();
             } catch (InterruptedException e) {
                 System.err.println("exeception occured in pooling: " + e.getMessage() + " " + e);
                 return;
             }
-            System.out.println("pool-t2");
             Map<String, Object> requestParams = new HashMap<>();
             requestParams.put("account", clientModel.getEmail());
             requestParams.put("page", String.valueOf(clientModel.getPage()));
+            requestParams.put("newMail", String.valueOf(clientModel.isFetchNewMail()));
+            clientModel.setFetchNewMail(false);
             Request<Email> request = new Request<>(Endpoint.GET_EMAILS, requestParams, null);
             String jsonRequest = gson.toJson(request);
             String jsonResponse;
@@ -77,7 +76,6 @@ public class Pooling implements Runnable {
                 });
                 return;
             }
-            System.out.println("received response: " + jsonResponse);
             Type type = new TypeToken<Response<EmailWrapper>>() {}.getType();
             Response<EmailWrapper> response = null;
             try {
@@ -95,12 +93,7 @@ public class Pooling implements Runnable {
             }
             if (response.getStatusCode() == 200) {
                 EmailWrapper emailWrapper = response.getResponseBody();
-
                 if (emailWrapper != null && emailWrapper.getEmails() != null) {
-                    if (emailWrapper.isNewMessage()) System.out.println("there is a new message");
-                    Platform.runLater(() -> {
-                        clientModel.setNewMessage(emailWrapper.isNewMessage());
-                    });
                     List<Email> emails = emailWrapper.getEmails();
                     for (Email mail : emails) {
                         clientModel.addEmail(mail);

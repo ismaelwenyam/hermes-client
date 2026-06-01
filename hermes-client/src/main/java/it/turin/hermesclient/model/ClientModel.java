@@ -40,6 +40,7 @@ public class ClientModel {
     private int page = 0;
     private SimpleBooleanProperty newMessage = new SimpleBooleanProperty(false);
     private String selectedEmailId;
+    private boolean fetchNewMail = false;
 
     //compose
     private SimpleStringProperty argument = new SimpleStringProperty("");
@@ -431,5 +432,13 @@ public class ClientModel {
      */
     public void setPage(int page) {
         this.page = page;
+    }
+
+    public boolean isFetchNewMail() {
+        return fetchNewMail;
+    }
+
+    public void setFetchNewMail(boolean fetchNewMail) {
+        this.fetchNewMail = fetchNewMail;
     }
 }

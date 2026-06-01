@@ -280,11 +280,14 @@ public class HomeController extends ClientController {
     public void onNext(MouseEvent mouseEvent) {
         System.out.println("page_gui: " + clientModel.getPageGui() + " - page: " + clientModel.getPage());
         int pageGui = Integer.parseInt(clientModel.getPageGui());
+        int page = clientModel.getPage();
         if (pageGui >= (double) Integer.parseInt(clientModel.getEmailsCount()) / nrElements) return;
         pageGui += 1;
-        clientModel.setPage(clientModel.getPage() + 1);
+        page += 1;
+        clientModel.setPage(page);
         clientModel.setPageGui(String.valueOf(pageGui));
         System.out.println("page_gui: " + clientModel.getPageGui() + " - page: " + clientModel.getPage());
+        //if ((page-1) * nrElements > clientModel.getSortedEmails().size())
         clientModel.getPoolingSem().release();
         updatePage();
     }
