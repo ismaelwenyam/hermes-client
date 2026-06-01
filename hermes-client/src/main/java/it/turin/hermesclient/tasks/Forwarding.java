@@ -9,6 +9,7 @@ import it.turin.hermesclient.model.ClientModel;
 import it.turin.hermesclient.model.Email;
 import it.turin.hermesclient.network.ServerConnection;
 import javafx.application.Platform;
+import javafx.concurrent.Task;
 import javafx.scene.paint.Color;
 
 import java.io.IOException;
@@ -20,7 +21,7 @@ import java.util.List;
 /**
  * Attivita' monouso che invia al server l'email preparata nel modello del client.
  */
-public class Forwarding implements Runnable {
+public class Forwarding extends Task<Response<?>> {
     private static final Gson gson = new Gson();
     private final ClientModel clientModel;
     private final int port;
@@ -42,41 +43,37 @@ public class Forwarding implements Runnable {
      * alla risposta del server.
      */
     @Override
-    public void run() {
-        //TODO if server is offline do something
+    public Response<?> call() throws IOException {
         System.out.println("start forwarding task");
         Request<Email> request = new Request<>(Endpoint.POST_EMAIL, null, clientModel.getMail());
         String jsonRequest = gson.toJson(request);
-        String jsonResponse;
-        try {
-            jsonResponse = ServerConnection.sendRequest(jsonRequest, InetAddress.getLocalHost().getHostAddress(), port);
-        } catch (UnknownHostException e) {
-            System.err.println("unkown host exception in forwarding: " + e.getMessage());
-            return;
-        } catch (IOException e) {
-            System.err.println("server unavailable in forwarding: " + e.getMessage());
-            Platform.runLater(() -> {
-                clientModel.updateServerStatus(false);
-                clientModel.setServerStatusColor(Color.RED);
-                clientModel.setErrorMessage("service unavailable");
-                clientModel.setShowError(true);
-            });
-            return;
-        }
+        String jsonResponse = ServerConnection.sendRequest(jsonRequest, InetAddress.getLocalHost().getHostAddress(), port);
         System.out.println("received response: " + jsonResponse);
         Response<?> response = gson.fromJson(jsonResponse, Response.class);
         if (response == null) {
             System.out.println("something went wrong in response from server");
-            return;
+            return null;
         }
+        System.out.println("end forwarding task");
+        return response;
+    }
+
+    @Override
+    protected void failed() {
+        Throwable error = getException();
+        clientModel.setErrorMessage("error forwarding mail: " + error.getMessage());
+        clientModel.setShowError(true);
+    }
+
+    @Override
+    protected void succeeded() {
+        Response<?> response = getValue();
         System.out.println("received response: " + response);
         if (response.getStatusCode() == 200) {
-            Platform.runLater(() -> {
-                clientModel.setArgument("");
-                clientModel.setRecipients("");
-                clientModel.setTextBody("");
-                clientModel.setShowError(false);
-            });
+            clientModel.setArgument("");
+            clientModel.setRecipients("");
+            clientModel.setTextBody("");
+            clientModel.setShowError(false);
         } else {
             Type emailListType = new TypeToken<List<String>>() {}.getType();
 
@@ -84,18 +81,15 @@ public class Forwarding implements Runnable {
                     gson.toJson(response.getResponseBody()),
                     emailListType
             );
-            Platform.runLater(() -> {
-                clientModel.setErrorMessage("not found: " + emails);
-                clientModel.setShowError(true);
-                clientModel.setArgument(clientModel.getMail().getArgument());
-                String unvalidEmails = "";
-                for (String e : emails){
-                    unvalidEmails = unvalidEmails.concat(e + ";");
-                }
-                clientModel.setTextBody(clientModel.getMail().getMailBody());
-            });
+            clientModel.setErrorMessage("not found: " + emails);
+            clientModel.setShowError(true);
+            clientModel.setArgument(clientModel.getMail().getArgument());
+            String unvalidEmails = "";
+            for (String e : emails){
+                unvalidEmails = unvalidEmails.concat(e + ";");
+            }
+            clientModel.setTextBody(clientModel.getMail().getMailBody());
             System.out.println("something went wrong in response from server");
         }
-        System.out.println("end forwarding task");
     }
 }
