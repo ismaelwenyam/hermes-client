@@ -23,6 +23,7 @@ import java.util.Map;
  * un ping riuscito.
  */
 public class Count implements Runnable {
+    private static final int SERVER_PAGE_SIZE = 10;
     private static final Gson gson = new Gson();
     private final ClientModel clientModel;
     private final int port;
@@ -88,13 +89,15 @@ public class Count implements Runnable {
                 }
                 long newCount = Long.parseLong(results[0]);
                 boolean newMessage = Boolean.parseBoolean(results[1]);
+                long currentCount = Long.parseLong(clientModel.getEmailsCount());
 
                 Platform.runLater(() -> {
                     clientModel.setEmailsCount(String.valueOf(newCount));
                     if (newMessage) clientModel.setNewMessage(newMessage);
                 });
                 clientModel.setFetchNewMail(newMessage);
-                if (newCount > Long.parseLong(clientModel.getEmailsCount())){
+                if (newCount > currentCount){
+                    clientModel.setPage(clientModel.getSortedEmails().size() / SERVER_PAGE_SIZE);
                     clientModel.getPoolingSem().release();
                 }
             } else {

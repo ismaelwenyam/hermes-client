@@ -25,6 +25,7 @@ import java.io.IOException;
  * conteggio delle email e lista dei messaggi.
  */
 public class HomeController extends ClientController {
+    private static final int SERVER_PAGE_SIZE = 10;
     private ClientModel clientModel;
     int nrElements = 3; //TODO edit to 5
 
@@ -83,7 +84,11 @@ public class HomeController extends ClientController {
         });
         elemsXPage.textProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue.equalsIgnoreCase(oldValue)) {
+                int previousNrElements = nrElements;
+                int currentFirstIndex = (Math.max(1, Integer.parseInt(clientModel.getPageGui())) - 1) * previousNrElements;
                 nrElements = Integer.parseInt(newValue);
+                int newPageGui = (currentFirstIndex / nrElements) + 1;
+                clientModel.setPageGui(String.valueOf(Math.max(1, newPageGui)));
                 updatePage();
             }
         });
@@ -265,7 +270,6 @@ public class HomeController extends ClientController {
         int pageGui = Integer.parseInt(clientModel.getPageGui());
         if (pageGui <= 1) return;
         pageGui -= 1;
-        clientModel.setPage(clientModel.getPage() - 1);
         clientModel.setPageGui(String.valueOf(pageGui));
         updatePage();
 
@@ -280,15 +284,9 @@ public class HomeController extends ClientController {
     public void onNext(MouseEvent mouseEvent) {
         System.out.println("page_gui: " + clientModel.getPageGui() + " - page: " + clientModel.getPage());
         int pageGui = Integer.parseInt(clientModel.getPageGui());
-        int page = clientModel.getPage();
-        if (pageGui >= (double) Integer.parseInt(clientModel.getEmailsCount()) / nrElements) return;
         pageGui += 1;
-        page += 1;
-        clientModel.setPage(page);
         clientModel.setPageGui(String.valueOf(pageGui));
         System.out.println("page_gui: " + clientModel.getPageGui() + " - page: " + clientModel.getPage());
-        //if ((page-1) * nrElements > clientModel.getSortedEmails().size())
-        clientModel.getPoolingSem().release();
         updatePage();
     }
 
@@ -298,27 +296,35 @@ public class HomeController extends ClientController {
      */
     private void updatePage() {
         new Thread(() -> {
-            // se nrElements maggiore del numero di elementi presenti nella pagina corrente
-            // visualizzare la prima pagina che contiene nrElements
-            int from = Math.min(clientModel.getPage() * nrElements, clientModel.getSortedEmails().size());
-            int to = Math.min(from + nrElements, clientModel.getSortedEmails().size());
-            boolean empty = true;
-            while (empty) {
-                if (clientModel.getSortedEmails().subList(from, to).isEmpty()) {
-                    from--;
-                    int pageUi = (int) Math.ceil((double) clientModel.getSortedEmails().size() / nrElements);
-                    clientModel.setPage(pageUi-1);
-                    Platform.runLater(() -> {
-                        clientModel.setPageGui(String.valueOf(pageUi));
-                    });
-                }
-                else empty = false;
+            int loadedEmails = clientModel.getSortedEmails().size();
+            int totalEmails = Integer.parseInt(clientModel.getEmailsCount());
+            int pageGui = Math.max(1, Integer.parseInt(clientModel.getPageGui()));
+            int from = (pageGui - 1) * nrElements;
+            int requestedEnd = pageGui * nrElements;
+
+            if (loadedEmails == 0) {
+                Platform.runLater(() -> emailList.setItems(FXCollections.observableArrayList()));
+                return;
             }
+
+            if (requestedEnd > loadedEmails) {
+                if (loadedEmails < totalEmails) {
+                    clientModel.setPage(loadedEmails / SERVER_PAGE_SIZE);
+                    clientModel.getPoolingSem().release();
+                } else {
+                    int lastPageGui = Math.max(1, (int) Math.ceil((double) loadedEmails / nrElements));
+                    clientModel.setPageGui(String.valueOf(lastPageGui));
+                }
+                return;
+            }
+
+            int to = Math.min(requestedEnd, loadedEmails);
             int finalFrom = from;
+            int finalTo = to;
             Platform.runLater(() -> {
                 emailList.setItems(
                         FXCollections.observableArrayList(
-                                clientModel.getSortedEmails().subList(finalFrom, to)
+                                clientModel.getSortedEmails().subList(finalFrom, finalTo)
                         )
                 );
             });
