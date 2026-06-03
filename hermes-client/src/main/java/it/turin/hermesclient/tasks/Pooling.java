@@ -95,9 +95,7 @@ public class Pooling implements Runnable {
                 EmailWrapper emailWrapper = response.getResponseBody();
                 if (emailWrapper != null && emailWrapper.getEmails() != null) {
                     List<Email> emails = emailWrapper.getEmails();
-                    for (Email mail : emails) {
-                        homeModel.addEmail(mail);
-                    }
+                    homeModel.addEmails(emails);
                 }
             } else if (response.getStatusCode() == 404) {
                 System.out.println("no emails found");

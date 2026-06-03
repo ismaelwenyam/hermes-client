@@ -304,7 +304,6 @@ public class HomeController extends ClientController {
             int loadedEmails = homeModel.getSortedEmails().size();
             int totalEmails = Integer.parseInt(homeModel.getEmailsCount());
             int currentPageGui = Math.max(1, Integer.parseInt(homeModel.getPageGui()));
-            int effectivePageGui = currentPageGui;
             int from = (currentPageGui - 1) * nrElements;
             int requestedEnd = currentPageGui * nrElements;
 
@@ -319,12 +318,22 @@ public class HomeController extends ClientController {
                     clientModel.getPoolingSem().release();
                     return;
                 } else {
-                    effectivePageGui = Math.max(1, (int) Math.ceil((double) loadedEmails / nrElements));
-                    homeModel.setPageGui(String.valueOf(effectivePageGui));
+                    int lastPageGui = Math.max(1, (int) Math.ceil((double) loadedEmails / nrElements));
+                    int finalFrom = (lastPageGui - 1) * nrElements;
+                    int finalTo = Math.min(finalFrom + nrElements, loadedEmails);
+                    Platform.runLater(() -> {
+                        homeModel.setPageGui(String.valueOf(lastPageGui));
+                        emailList.setItems(
+                                FXCollections.observableArrayList(
+                                        homeModel.getSortedEmails().subList(finalFrom, finalTo)
+                                )
+                        );
+                    });
+                    return;
                 }
             }
 
-            int finalFrom = (effectivePageGui - 1) * nrElements;
+            int finalFrom = from;
             int finalTo = Math.min(finalFrom + nrElements, loadedEmails);
             Platform.runLater(() -> {
                 emailList.setItems(

@@ -7,6 +7,10 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.SortedList;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
 /**
  * Stato specifico della vista Home.
  * Contiene la paginazione, la lista delle email e i flag usati dal controller
@@ -76,6 +80,29 @@ public class HomeModel {
         Platform.runLater(() -> {
             if (!emails.contains(email)) {
                 emails.add(email);
+            }
+        });
+    }
+
+    /**
+     * Aggiunge piu' email alla casella di posta con un solo aggiornamento della
+     * lista osservabile.
+     *
+     * @param newEmails email da aggiungere
+     */
+    public void addEmails(Collection<Email> newEmails) {
+        if (newEmails == null || newEmails.isEmpty()) {
+            return;
+        }
+        Platform.runLater(() -> {
+            List<Email> toAdd = new ArrayList<>();
+            for (Email email : newEmails) {
+                if (!emails.contains(email)) {
+                    toAdd.add(email);
+                }
+            }
+            if (!toAdd.isEmpty()) {
+                emails.addAll(toAdd);
             }
         });
     }
