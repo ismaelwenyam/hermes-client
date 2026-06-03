@@ -54,7 +54,7 @@ public class Count implements Runnable {
             try {
                 clientModel.getCountingSem().acquire();
             } catch (InterruptedException e) {
-                System.err.println("exeception occured in counting: " + e.getMessage() + " " + e);
+                System.err.println(Thread.currentThread().getName() + " interrupted");
                 return;
             }
             Map<String, Object> requestParams = new HashMap<>();
