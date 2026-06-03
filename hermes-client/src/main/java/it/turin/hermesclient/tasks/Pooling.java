@@ -74,10 +74,6 @@ public class Pooling implements Runnable {
                 return;
             } catch (IOException e) {
                 System.err.println("server unavailable in pooling: " + e.getMessage());
-                Platform.runLater(() -> {
-                    clientModel.updateServerStatus(false);
-                    clientModel.setServerStatusColor(Color.RED);
-                });
                 return;
             }
             Type type = new TypeToken<Response<EmailWrapper>>() {}.getType();

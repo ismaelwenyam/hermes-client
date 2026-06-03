@@ -70,8 +70,6 @@ public class Count implements Runnable {
             } catch (IOException e) {
                 System.err.println("server unavailable in count: " + e.getMessage());
                 Platform.runLater(() -> {
-                    clientModel.updateServerStatus(false);
-                    clientModel.setServerStatusColor(Color.RED);
                     clientModel.setErrorMessage("service unavailable");
                     clientModel.setShowError(true);
                 });
@@ -97,7 +95,7 @@ public class Count implements Runnable {
 
                 Platform.runLater(() -> {
                     homeModel.setEmailsCount(String.valueOf(newCount));
-                    if (newMessage) homeModel.setNewMessage(newMessage);
+                    homeModel.setNewMessage(newMessage);
                 });
                 homeModel.setFetchNewMail(newMessage);
                 if (newCount > currentCount){
