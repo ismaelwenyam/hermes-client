@@ -5,6 +5,7 @@ import it.turin.hermesclient.dto.Endpoint;
 import it.turin.hermesclient.dto.Request;
 import it.turin.hermesclient.dto.Response;
 import it.turin.hermesclient.model.ClientModel;
+import it.turin.hermesclient.model.HomeModel;
 import it.turin.hermesclient.network.ServerConnection;
 import javafx.concurrent.Task;
 import javafx.scene.paint.Color;
@@ -24,6 +25,7 @@ public class Deletion extends Task<Response<?>> {
     private static final Gson gson = new Gson();
 
     private final ClientModel clientModel;
+    private final HomeModel homeModel;
     private final int port;
     private final String emailId;
 
@@ -32,12 +34,14 @@ public class Deletion extends Task<Response<?>> {
      * Crea un'attivita' di eliminazione.
      *
      * @param clientModel stato condiviso dell'applicazione
+     * @param homeModel stato specifico della vista Home
      * @param port porta del server
      */
-    public Deletion(ClientModel clientModel, int port) {
+    public Deletion(ClientModel clientModel, HomeModel homeModel, int port) {
         this.clientModel = clientModel;
+        this.homeModel = homeModel;
         this.port = port;
-        this.emailId = clientModel.getSelectedEmailId();
+        this.emailId = homeModel.getSelectedEmailId();
     }
 
     /**
@@ -69,7 +73,7 @@ public class Deletion extends Task<Response<?>> {
             return;
         }
         if (response.getStatusCode() == 200) {
-            clientModel.removeEmail(Long.parseLong(emailId));
+            homeModel.removeEmail(Long.parseLong(emailId));
         } else {
             clientModel.setErrorMessage("something went wrong in response from server");
             clientModel.setShowError(true);

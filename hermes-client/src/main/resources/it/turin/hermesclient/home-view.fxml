@@ -101,6 +101,7 @@
               <items>
                 <MenuItem mnemonicParsing="false" text="3" />
                 <MenuItem mnemonicParsing="false" text="5" />
+                  <MenuItem mnemonicParsing="false" text="10" />
               </items>
             </MenuButton>
             <Label fx:id="homeErrorLabel" alignment="CENTER" prefHeight="30.0" prefWidth="436.0" style="-fx-background-color: red;" text="Label" textFill="WHITE" />

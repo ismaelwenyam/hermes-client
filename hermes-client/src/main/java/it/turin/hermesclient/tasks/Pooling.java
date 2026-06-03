@@ -7,6 +7,7 @@ import it.turin.hermesclient.dto.Endpoint;
 import it.turin.hermesclient.dto.Request;
 import it.turin.hermesclient.dto.Response;
 import it.turin.hermesclient.model.ClientModel;
+import it.turin.hermesclient.model.HomeModel;
 import it.turin.hermesclient.model.Email;
 import it.turin.hermesclient.network.ServerConnection;
 import javafx.application.Platform;
@@ -29,16 +30,19 @@ import java.util.Map;
 public class Pooling implements Runnable {
     private static final Gson gson = new Gson();
     private final ClientModel clientModel;
+    private final HomeModel homeModel;
     private final int port;
 
     /**
      * Crea un'attivita' di pooling.
      *
      * @param clientModel stato condiviso dell'applicazione
+     * @param homeModel stato specifico della vista Home
      * @param port porta del server
      */
-    public Pooling(ClientModel clientModel, int port) {
+    public Pooling(ClientModel clientModel, HomeModel homeModel, int port) {
         this.clientModel = clientModel;
+        this.homeModel = homeModel;
         this.port = port;
     }
 
@@ -57,9 +61,9 @@ public class Pooling implements Runnable {
             }
             Map<String, Object> requestParams = new HashMap<>();
             requestParams.put("account", clientModel.getEmail());
-            requestParams.put("page", String.valueOf(clientModel.getServerPage()));
-            requestParams.put("newMail", String.valueOf(clientModel.isFetchNewMail()));
-            clientModel.setFetchNewMail(false);
+            requestParams.put("page", String.valueOf(homeModel.getServerPage()));
+            requestParams.put("newMail", String.valueOf(homeModel.isFetchNewMail()));
+            homeModel.setFetchNewMail(false);
             Request<Email> request = new Request<>(Endpoint.GET_EMAILS, requestParams, null);
             String jsonRequest = gson.toJson(request);
             String jsonResponse;
@@ -96,7 +100,7 @@ public class Pooling implements Runnable {
                 if (emailWrapper != null && emailWrapper.getEmails() != null) {
                     List<Email> emails = emailWrapper.getEmails();
                     for (Email mail : emails) {
-                        clientModel.addEmail(mail);
+                        homeModel.addEmail(mail);
                     }
                 }
             } else if (response.getStatusCode() == 404) {

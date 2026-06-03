@@ -1,6 +1,7 @@
 package it.turin.hermesclient.controller;
 
 import it.turin.hermesclient.model.ClientModel;
+import it.turin.hermesclient.model.ComposeModel;
 import it.turin.hermesclient.model.Email;
 import it.turin.hermesclient.tasks.Forwarding;
 import it.turin.hermesclient.utils.EmailValidator;
@@ -27,6 +28,7 @@ import java.util.List;
  */
 public class ComposeController extends ClientController {
     private ClientModel clientModel;
+    private ComposeModel composeModel;
 
     @FXML public TextField argumentTxtField;
     @FXML public TextField recipientsTxtField;
@@ -41,13 +43,13 @@ public class ComposeController extends ClientController {
      */
     public void init (ClientModel clientModel) {
         this.clientModel = clientModel;
-        argumentTxtField.textProperty().bindBidirectional(clientModel.argumentProperty());
-        recipientsTxtField.textProperty().bindBidirectional(clientModel.recipientsProperty());
-        mailTxtArea.textProperty().bindBidirectional(clientModel.textBodyProperty());
+        this.composeModel = clientModel.getComposeModel();
+        argumentTxtField.textProperty().bindBidirectional(composeModel.argumentProperty());
+        recipientsTxtField.textProperty().bindBidirectional(composeModel.recipientsProperty());
+        mailTxtArea.textProperty().bindBidirectional(composeModel.textBodyProperty());
         serverStatus.fillProperty().bind(clientModel.serverStatusColorProperty());
         errorLabel.visibleProperty().bind(clientModel.showErrorProperty());
         errorLabel.textProperty().bind(clientModel.errorMessageProperty());
-        serverStatus.fillProperty().bind(clientModel.serverStatusColorProperty());
     }
 
     /**
@@ -67,13 +69,11 @@ public class ComposeController extends ClientController {
     public void onCancel(MouseEvent mouseEvent) {
         clientModel.setShowError(false);
         clientModel.setErrorMessage("");
-        clientModel.setArgument("");
-        clientModel.setArgument("");
-        clientModel.setTextBody("");
+        composeModel.clearDraft();
         try {
             SceneManager.switchScene("home-view.fxml", clientModel);
         } catch (IOException e) {
-            System.err.println("execption in switching to compose-view");
+            System.err.println("execption in switching to home-view");
         }
     }
 
@@ -99,9 +99,10 @@ public class ComposeController extends ClientController {
         if (argumentTxtField.getText().trim().isEmpty()) {
             clientModel.setErrorMessage("Nessun oggetto");
             clientModel.setShowError(true);
+            return;
         }
         Email mail = new Email(clientModel.getEmail(), recipients, argumentTxtField.getText().trim(), mailTxtArea.getText().trim(), Date.from(Instant.now()));
-        clientModel.setMail(mail);
+        composeModel.setMail(mail);
         send();
     }
 
@@ -109,7 +110,7 @@ public class ComposeController extends ClientController {
      * Avvia l'attivita' asincrona che invia al server l'email composta.
      */
     private void send () {
-        Thread sendThread = new Thread(new Forwarding(clientModel, 8080), "forwarding");
+        Thread sendThread = new Thread(new Forwarding(clientModel, composeModel, 8080), "forwarding");
         sendThread.start();
     }
 
@@ -128,8 +129,6 @@ public class ComposeController extends ClientController {
      * @param mouseEvent evento di click che ha attivato il reset
      */
     public void onReset(MouseEvent mouseEvent) {
-        argumentTxtField.clear();
-        recipientsTxtField.clear();
-        mailTxtArea.clear();
+        composeModel.clearDraft();
     }
 }

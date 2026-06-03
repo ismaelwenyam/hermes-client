@@ -6,6 +6,7 @@ import it.turin.hermesclient.dto.Endpoint;
 import it.turin.hermesclient.dto.Request;
 import it.turin.hermesclient.dto.Response;
 import it.turin.hermesclient.model.ClientModel;
+import it.turin.hermesclient.model.ComposeModel;
 import it.turin.hermesclient.model.Email;
 import it.turin.hermesclient.network.ServerConnection;
 import javafx.application.Platform;
@@ -24,17 +25,22 @@ import java.util.List;
 public class Forwarding extends Task<Response<?>> {
     private static final Gson gson = new Gson();
     private final ClientModel clientModel;
+    private final ComposeModel composeModel;
+    private final Email mail;
     private final int port;
 
     /**
      * Crea un'attivita' di inoltro.
      *
      * @param clientModel stato condiviso dell'applicazione
+     * @param composeModel stato specifico della vista Compose
      * @param port porta del server
      */
-    public Forwarding(ClientModel clientModel, int port) {
+    public Forwarding(ClientModel clientModel, ComposeModel composeModel, int port) {
         this.clientModel = clientModel;
+        this.composeModel = composeModel;
         this.port = port;
+        this.mail = composeModel.getMail();
     }
 
 
@@ -45,7 +51,7 @@ public class Forwarding extends Task<Response<?>> {
     @Override
     public Response<?> call() throws IOException {
         System.out.println("start forwarding task");
-        Request<Email> request = new Request<>(Endpoint.POST_EMAIL, null, clientModel.getMail());
+        Request<Email> request = new Request<>(Endpoint.POST_EMAIL, null, mail);
         String jsonRequest = gson.toJson(request);
         String jsonResponse = ServerConnection.sendRequest(jsonRequest, InetAddress.getLocalHost().getHostAddress(), port);
         System.out.println("received response: " + jsonResponse);
@@ -70,9 +76,7 @@ public class Forwarding extends Task<Response<?>> {
         Response<?> response = getValue();
         System.out.println("received response: " + response);
         if (response.getStatusCode() == 200) {
-            clientModel.setArgument("");
-            clientModel.setRecipients("");
-            clientModel.setTextBody("");
+            composeModel.clearDraft();
             clientModel.setShowError(false);
         } else {
             Type emailListType = new TypeToken<List<String>>() {}.getType();
@@ -83,12 +87,8 @@ public class Forwarding extends Task<Response<?>> {
             );
             clientModel.setErrorMessage("not found: " + emails);
             clientModel.setShowError(true);
-            clientModel.setArgument(clientModel.getMail().getArgument());
-            String unvalidEmails = "";
-            for (String e : emails){
-                unvalidEmails = unvalidEmails.concat(e + ";");
-            }
-            clientModel.setTextBody(clientModel.getMail().getMailBody());
+            composeModel.setArgument(mail.getArgument());
+            composeModel.setTextBody(mail.getMailBody());
             System.out.println("something went wrong in response from server");
         }
     }

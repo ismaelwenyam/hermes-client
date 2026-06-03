@@ -5,6 +5,7 @@ import it.turin.hermesclient.dto.Endpoint;
 import it.turin.hermesclient.dto.Request;
 import it.turin.hermesclient.dto.Response;
 import it.turin.hermesclient.model.ClientModel;
+import it.turin.hermesclient.model.HomeModel;
 import it.turin.hermesclient.network.ServerConnection;
 import javafx.application.Platform;
 import javafx.scene.paint.Color;
@@ -26,16 +27,19 @@ public class Count implements Runnable {
     private static final int SERVER_PAGE_SIZE = 10;
     private static final Gson gson = new Gson();
     private final ClientModel clientModel;
+    private final HomeModel homeModel;
     private final int port;
 
     /**
      * Crea un'attivita' di conteggio.
      *
      * @param clientModel stato condiviso dell'applicazione
+     * @param homeModel stato specifico della vista Home
      * @param port porta del server
      */
-    public Count (ClientModel clientModel, int port) {
+    public Count (ClientModel clientModel, HomeModel homeModel, int port) {
         this.clientModel = clientModel;
+        this.homeModel = homeModel;
         this.port = port;
     }
 
@@ -89,15 +93,15 @@ public class Count implements Runnable {
                 }
                 long newCount = Long.parseLong(results[0]);
                 boolean newMessage = Boolean.parseBoolean(results[1]);
-                long currentCount = Long.parseLong(clientModel.getEmailsCount());
+                long currentCount = Long.parseLong(homeModel.getEmailsCount());
 
                 Platform.runLater(() -> {
-                    clientModel.setEmailsCount(String.valueOf(newCount));
-                    if (newMessage) clientModel.setNewMessage(newMessage);
+                    homeModel.setEmailsCount(String.valueOf(newCount));
+                    if (newMessage) homeModel.setNewMessage(newMessage);
                 });
-                clientModel.setFetchNewMail(newMessage);
+                homeModel.setFetchNewMail(newMessage);
                 if (newCount > currentCount){
-                    clientModel.setServerPage(clientModel.getSortedEmails().size() / SERVER_PAGE_SIZE);
+                    homeModel.setServerPage(homeModel.getSortedEmails().size() / SERVER_PAGE_SIZE);
                     clientModel.getPoolingSem().release();
                 }
             } else {

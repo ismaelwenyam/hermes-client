@@ -1,6 +1,7 @@
 package it.turin.hermesclient.tasks;
 
 import it.turin.hermesclient.model.ClientModel;
+import it.turin.hermesclient.model.HomeModel;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -22,8 +23,9 @@ public class TasksExecutor {
      */
     public void start (ClientModel clientModel, int port) {
         scheduledExecs.scheduleAtFixedRate(new Ping(clientModel, port), 0, 10, TimeUnit.SECONDS);
-        exec.execute(new Pooling(clientModel, port));
-        exec.execute(new Count(clientModel, port));
+        HomeModel homeModel = clientModel.getHomeModel();
+        exec.execute(new Pooling(clientModel, homeModel, port));
+        exec.execute(new Count(clientModel, homeModel, port));
     }
 
     /**

@@ -2,6 +2,8 @@ package it.turin.hermesclient.controller;
 
 import it.turin.hermesclient.model.ClientModel;
 import it.turin.hermesclient.model.Email;
+import it.turin.hermesclient.model.ComposeModel;
+import it.turin.hermesclient.model.HomeModel;
 import it.turin.hermesclient.tasks.*;
 import it.turin.hermesclient.utils.SceneManager;
 import javafx.application.Platform;
@@ -27,6 +29,8 @@ import java.io.IOException;
 public class HomeController extends ClientController {
     private static final int SERVER_PAGE_SIZE = 10;
     private ClientModel clientModel;
+    private HomeModel homeModel;
+    private ComposeModel composeModel;
     int nrElements = 3; //TODO edit to 5
 
 
@@ -57,24 +61,25 @@ public class HomeController extends ClientController {
      */
     public void init(ClientModel clientModel) {
         this.clientModel = clientModel;
-        clientModel.getSortedEmails().setComparator(Email::compareTo);
+        this.homeModel = clientModel.getHomeModel();
+        this.composeModel = clientModel.getComposeModel();
         startTasks();
         loggedUser.textProperty().bind(clientModel.emailProperty());
         serverStatus.fillProperty().bind(clientModel.serverStatusColorProperty());
         homeErrorLabel.textProperty().bind(clientModel.errorMessageProperty());
         homeErrorLabel.visibleProperty().bind(clientModel.showErrorProperty());
-        newMessageLabel.visibleProperty().bind(clientModel.newMessageProperty());
+        newMessageLabel.visibleProperty().bind(homeModel.newMessageProperty());
 
-        int pageGui = Math.max(1, Integer.parseInt(clientModel.getPageGui()));
+        int pageGui = Math.max(1, Integer.parseInt(homeModel.getPageGui()));
         int f = (pageGui - 1) * nrElements;
-        int t = Math.min(f + nrElements, clientModel.getSortedEmails().size());
-        emailList.setItems(FXCollections.observableArrayList(clientModel.getSortedEmails().subList(f, t)));
+        int t = Math.min(f + nrElements, homeModel.getSortedEmails().size());
+        emailList.setItems(FXCollections.observableArrayList(homeModel.getSortedEmails().subList(f, t)));
 
-        clientModel.getEmails().addListener((javafx.collections.ListChangeListener<Email>) c -> {
+        homeModel.getEmails().addListener((javafx.collections.ListChangeListener<Email>) c -> {
             updatePage();
         });
-        totalMails.textProperty().bind(clientModel.emailsCountProperty());
-        page.textProperty().bind(clientModel.pageGuiProperty());
+        totalMails.textProperty().bind(homeModel.emailsCountProperty());
+        page.textProperty().bind(homeModel.pageGuiProperty());
         elemsXPage.setPopupSide(Side.TOP);
         elemsXPage.getItems().forEach(mi -> {
             mi.setOnAction(event -> {
@@ -84,10 +89,10 @@ public class HomeController extends ClientController {
         elemsXPage.textProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue.equalsIgnoreCase(oldValue)) {
                 int previousNrElements = nrElements;
-                int currentFirstIndex = (Math.max(1, Integer.parseInt(clientModel.getPageGui())) - 1) * previousNrElements;
+                int currentFirstIndex = (Math.max(1, Integer.parseInt(homeModel.getPageGui())) - 1) * previousNrElements;
                 nrElements = Integer.parseInt(newValue);
                 int newPageGui = (currentFirstIndex / nrElements) + 1;
-                clientModel.setPageGui(String.valueOf(Math.max(1, newPageGui)));
+                homeModel.setPageGui(String.valueOf(Math.max(1, newPageGui)));
                 updatePage();
             }
         });
@@ -106,7 +111,7 @@ public class HomeController extends ClientController {
         });
         emailList.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
-                clientModel.setSelectedEmailId(String.valueOf(newValue.getID()));
+                homeModel.setSelectedEmailId(String.valueOf(newValue.getID()));
                 argument.setText(newValue.getArgument());
                 from.setText(newValue.getSender());
                 String recipients = "";
@@ -118,7 +123,7 @@ public class HomeController extends ClientController {
                 mailArea.setText(newValue.getMailBody());
                 acknowledgeNewestMail(newValue);
             } else {
-                clientModel.setSelectedEmailId("");
+                homeModel.setSelectedEmailId("");
                 argument.setText("");
                 from.setText("");
                 to.setText("");
@@ -135,14 +140,14 @@ public class HomeController extends ClientController {
      * @param selectedEmail email appena selezionata
      */
     private void acknowledgeNewestMail(Email selectedEmail) {
-        if (!clientModel.isNewMessage()) {
+        if (!homeModel.isNewMessage()) {
             return;
         }
         if (selectedEmail == null) {
             return;
         }
         if (!emailList.getItems().isEmpty() && emailList.getItems().get(0).equals(selectedEmail)) {
-            clientModel.setNewMessage(false);
+            homeModel.setNewMessage(false);
         }
     }
 
@@ -171,9 +176,7 @@ public class HomeController extends ClientController {
      * @param mouseEvent evento di click che ha attivato l'azione
      */
     public void onNewMessage(MouseEvent mouseEvent) {
-        clientModel.setArgument("");
-        clientModel.setRecipients("");
-        clientModel.setTextBody("");
+        composeModel.clearDraft();
         try {
             SceneManager.switchScene("compose-view.fxml", clientModel);
         } catch (IOException e) {
@@ -185,13 +188,13 @@ public class HomeController extends ClientController {
      * Prepara una risposta all'email attualmente selezionata.
      */
     public void onAnswer () {
-        if (clientModel.getSelectedEmailId() == null || clientModel.getSelectedEmailId().trim().isEmpty()) {
+        if (homeModel.getSelectedEmailId() == null || homeModel.getSelectedEmailId().trim().isEmpty()) {
             clientModel.setErrorMessage("Select the mail to which answer");
             clientModel.setShowError(true);
             return;
         }
-        clientModel.setArgument("RE: " + argument.getText());
-        clientModel.setRecipients(from.getText());
+        composeModel.setArgument("RE: " + argument.getText());
+        composeModel.setRecipients(from.getText());
         try {
             SceneManager.switchScene("compose-view.fxml", clientModel);
         } catch (IOException e) {
@@ -204,12 +207,12 @@ public class HomeController extends ClientController {
      * escluso l'account connesso.
      */
     public void onAnswerAll () {
-        if (clientModel.getSelectedEmailId() == null || clientModel.getSelectedEmailId().trim().isEmpty()) {
+        if (homeModel.getSelectedEmailId() == null || homeModel.getSelectedEmailId().trim().isEmpty()) {
             clientModel.setErrorMessage("Select the mail to which answer all");
             clientModel.setShowError(true);
             return;
         }
-        clientModel.setArgument("RE: " + argument.getText());
+        composeModel.setArgument("RE: " + argument.getText());
         String sender = from.getText();
         String[] r = to.getText().split(";");
         StringBuilder recipients = new StringBuilder();
@@ -218,7 +221,7 @@ public class HomeController extends ClientController {
                 recipients.append(mail).append(";");
             }
         }
-        clientModel.setRecipients(sender.concat(";").concat(recipients.toString()));
+        composeModel.setRecipients(sender.concat(";").concat(recipients.toString()));
         try {
             SceneManager.switchScene("compose-view.fxml", clientModel);
         } catch (IOException e) {
@@ -231,14 +234,14 @@ public class HomeController extends ClientController {
      * pronto per l'inoltro.
      */
     public void onForward () {
-        if (clientModel.getSelectedEmailId() == null || clientModel.getSelectedEmailId().trim().isEmpty()) {
+        if (homeModel.getSelectedEmailId() == null || homeModel.getSelectedEmailId().trim().isEmpty()) {
             clientModel.setErrorMessage("Select the mail to forward");
             clientModel.setShowError(true);
             return;
         }
-        clientModel.setArgument("FWD: " + argument.getText());
-        clientModel.setTextBody(mailArea.getText());
-        clientModel.setRecipients("");
+        composeModel.setArgument("FWD: " + argument.getText());
+        composeModel.setTextBody(mailArea.getText());
+        composeModel.setRecipients("");
         try {
             SceneManager.switchScene("compose-view.fxml", clientModel);
         } catch (IOException e) {
@@ -250,12 +253,12 @@ public class HomeController extends ClientController {
      * Avvia l'attivita' di eliminazione per l'email selezionata.
      */
     public void onDelete () {
-        if (clientModel.getSelectedEmailId() == null || clientModel.getSelectedEmailId().trim().isEmpty()) {
+        if (homeModel.getSelectedEmailId() == null || homeModel.getSelectedEmailId().trim().isEmpty()) {
             clientModel.setErrorMessage("Select the mail to delete");
             clientModel.setShowError(true);
             return;
         }
-        Thread deleteThread = new Thread(new Deletion(clientModel, 8080), "deletion-task");
+        Thread deleteThread = new Thread(new Deletion(clientModel, homeModel, 8080), "deletion-task");
         deleteThread.start();
     }
 
@@ -266,10 +269,10 @@ public class HomeController extends ClientController {
      * @param mouseEvent evento di click che ha attivato la navigazione
      */
     public void onPrevious(MouseEvent mouseEvent) {
-        int pageGui = Integer.parseInt(clientModel.getPageGui());
+        int pageGui = Integer.parseInt(homeModel.getPageGui());
         if (pageGui <= 1) return;
         pageGui -= 1;
-        clientModel.setPageGui(String.valueOf(pageGui));
+        homeModel.setPageGui(String.valueOf(pageGui));
         updatePage();
 
     }
@@ -281,25 +284,29 @@ public class HomeController extends ClientController {
      * @param mouseEvent evento di click che ha attivato la navigazione
      */
     public void onNext(MouseEvent mouseEvent) {
-        System.out.println("page_gui: " + clientModel.getPageGui() + " - serverPage: " + clientModel.getServerPage());
-        int pageGui = Integer.parseInt(clientModel.getPageGui());
+        int pageGui = Integer.parseInt(homeModel.getPageGui());
         pageGui += 1;
-        clientModel.setPageGui(String.valueOf(pageGui));
-        System.out.println("page_gui: " + clientModel.getPageGui() + " - serverPage: " + clientModel.getServerPage());
+        homeModel.setPageGui(String.valueOf(pageGui));
         updatePage();
     }
 
     /**
-     * Ricostruisce la lista visibile delle email dai dati ordinati del modello
-     * in base alla pagina corrente.
+     * Aggiorna in modo asincrono la lista visibile delle email in base alla
+     * pagina corrente e al numero di elementi per pagina.
+     * <p>
+     * Se la pagina richiesta supera le email gia' caricate, richiede al modello
+     * di recuperare altri dati dal server; se invece tutte le email sono gia'
+     * disponibili, riallinea la pagina all'ultima valida.
+     * </p>
      */
     private void updatePage() {
         new Thread(() -> {
-            int loadedEmails = clientModel.getSortedEmails().size();
-            int totalEmails = Integer.parseInt(clientModel.getEmailsCount());
-            int pageGui = Math.max(1, Integer.parseInt(clientModel.getPageGui()));
-            int from = (pageGui - 1) * nrElements;
-            int requestedEnd = pageGui * nrElements;
+            int loadedEmails = homeModel.getSortedEmails().size();
+            int totalEmails = Integer.parseInt(homeModel.getEmailsCount());
+            int currentPageGui = Math.max(1, Integer.parseInt(homeModel.getPageGui()));
+            int effectivePageGui = currentPageGui;
+            int from = (currentPageGui - 1) * nrElements;
+            int requestedEnd = currentPageGui * nrElements;
 
             if (loadedEmails == 0) {
                 Platform.runLater(() -> emailList.setItems(FXCollections.observableArrayList()));
@@ -308,22 +315,21 @@ public class HomeController extends ClientController {
 
             if (requestedEnd > loadedEmails) {
                 if (loadedEmails < totalEmails) {
-                    clientModel.setServerPage(loadedEmails / SERVER_PAGE_SIZE);
+                    homeModel.setServerPage(loadedEmails / SERVER_PAGE_SIZE);
                     clientModel.getPoolingSem().release();
+                    return;
                 } else {
-                    int lastPageGui = Math.max(1, (int) Math.ceil((double) loadedEmails / nrElements));
-                    clientModel.setPageGui(String.valueOf(lastPageGui));
+                    effectivePageGui = Math.max(1, (int) Math.ceil((double) loadedEmails / nrElements));
+                    homeModel.setPageGui(String.valueOf(effectivePageGui));
                 }
-                return;
             }
 
-            int to = Math.min(requestedEnd, loadedEmails);
-            int finalFrom = from;
-            int finalTo = to;
+            int finalFrom = (effectivePageGui - 1) * nrElements;
+            int finalTo = Math.min(finalFrom + nrElements, loadedEmails);
             Platform.runLater(() -> {
                 emailList.setItems(
                         FXCollections.observableArrayList(
-                                clientModel.getSortedEmails().subList(finalFrom, finalTo)
+                                homeModel.getSortedEmails().subList(finalFrom, finalTo)
                         )
                 );
             });
